@@ -1,0 +1,10 @@
+{:paths   ["src/main" "resources"]
+ :deps    {org.clojure/clojure    {:mvn/version "1.10.1"}
+           com.fulcrologic/fulcro {:mvn/version "3.0.10"}}
+
+ :aliases {:dev {:extra-paths ["src/dev"]
+                 :extra-deps  {org.clojure/clojurescript   {:mvn/version "1.10.742"}
+                               thheller/shadow-cljs        {:mvn/version "2.9.8"}
+                               binaryage/devtools          {:mvn/version "0.9.10"}
+                               nrepl/nrepl                 {:mvn/version "0.7.0"}
+                               cider/piggieback            {:mvn/version "0.5.0"}}}}}

@@ -1,0 +1,11 @@
+{:deps     {:aliases [:dev]}
+ :dev-http {8000 "classpath:public"}
+ :nrepl    {:port 7000
+            :middleware [cider.piggieback/wrap-cljs-repl]}
+ :builds   {:main {:target     :browser
+                   :output-dir "resources/public/js/main"
+                   :asset-path "/js/main"
+                   :modules    {:main {:init-fn hp.client/init
+                                       :entries [hp.client]}}
+                   :devtools   {:after-load hp.client/refresh
+                                :preloads   [com.fulcrologic.fulcro.inspect.preload]}}}}
