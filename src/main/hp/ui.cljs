@@ -9,27 +9,65 @@
    :ident         (fn [] [:person/id (:person/id props)])}
   (dom/li
     (dom/h5 (str name " (age: " age ")")
-            (dom/button {:onClick #(onDelete id)} "X"))))
+            (dom/button {:className "btn btn-primary btn-sm"
+                         :onClick #(onDelete id)} "X"))
+    ))
 
 (def ui-person (comp/factory Person {:keyfn :person/id}))
 
-(defsc PersonList [this {:list/keys [id label people] :as props}]
+(defsc PersonList
+  [this {:list/keys [id label people] :as props}]
   {:query [:list/id :list/label {:list/people (comp/get-query Person)}]
    :ident (fn [] [:list/id (:list/id props)])}
   (let [delete-person (fn [person-id] (comp/transact! this [(api/delete-person {:list/id id :person/id person-id})]))]
     (dom/div
       (dom/h4 label)
+      (dom/button
+        {:onClick #(comp/transact! this [(api/add-person
+                                           {:list/id id
+                                            :person {:person/id (rand-nth (range 200))
+                                                     :person/age (rand-nth (range 200))
+                                                     :person/name (str "Something " (rand-nth (range 200)))}})])}
+        "Add random person")
       (dom/ul
         (map #(ui-person (comp/computed % {:onDelete delete-person})) people)))))
 
 (def ui-person-list (comp/factory PersonList))
 
-(defsc Root [this {:keys [friends enemies]}]
+(defsc PersonAdder
+  [this _]
+  {}
+  (dom/button {:onClick #(comp/transact! this [(api/add-person
+                                                 {:person/id (rand-nth (range 200))
+                                                  :person/age (rand-nth (range 200))
+                                                  :person/name (str "Something " (rand-nth (range 200)))})])}
+              "Add random person"))
+(def ui-person-adder (comp/factory PersonAdder))
+
+(defsc Crisis
+  [this {:crisis/keys [id text description] :as props}]
+  {:query [:crisis/id :crisis/text :crisis/description]
+   :ident (fn [] [:crisis/id id])}
+  (println "this:" this)
+  (println "stuff:" id text description)
+  (dom/div
+    (dom/div "Crisis id: " id)
+    (dom/div (or text "No text"))))
+(def ui-crisis (comp/factory Crisis))
+
+(defsc Root [this {:keys [friends enemies]
+                   :as props
+                   }]
   {:query         [{:friends (comp/get-query PersonList)}
-                   {:enemies (comp/get-query PersonList)}]
+                   {:enemies (comp/get-query PersonList)}
+                   {[:crisis/id "first"] (comp/get-query Crisis)}
+                   ]
    :initial-state {}}
+  (println "props:" props)
   (dom/div
     (dom/h3 "Friends")
     (when friends (ui-person-list friends))
     (dom/h3 "Enemies")
-    (when enemies (ui-person-list enemies))))
+    (when enemies (ui-person-list enemies))
+    (ui-crisis (props [:crisis/id "first"]))
+    ))

@@ -24,3 +24,7 @@
 (comment
   (start)
   (restart))
+
+;; When dev, start repl server
+(println "Starting server")
+(start)

@@ -28,4 +28,8 @@
   (api-parser [{:friends [:list/id {:list/people [:person/name]}]}
                {:enemies [:list/id {:list/people [:person/name]}]}
                ])
+  (api-parser [{:friends [:list/id {:list/people [:person/name]}]}
+               ])
+  (api-parser [{[:crisis/id "first"] [:crisis/text]}])
+  (api-parser [:crisis/id ])
   )
