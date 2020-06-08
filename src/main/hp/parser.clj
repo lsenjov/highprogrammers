@@ -31,5 +31,5 @@
   (api-parser [{:friends [:list/id {:list/people [:person/name]}]}
                ])
   (api-parser [{[:crisis/id "first"] [:crisis/text]}])
-  (api-parser [:crisis/id ])
+  (api-parser [{:crisis/list [:crisis/id :crisis/text :crisis/description]}])
   )

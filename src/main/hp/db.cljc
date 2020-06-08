@@ -4,7 +4,7 @@
     [com.fulcrologic.fulcro.algorithms.merge :as merge]))
 
 (def initial-db
-  {:crisis/id
+  {:crisis/list
    {"first" {:crisis/id "first"
              :crisis/text "A test crisis"
              :crisis/description "A much longer description here"}

@@ -3,8 +3,15 @@
     [hp.parser :refer [api-parser]]
     [org.httpkit.server :as http]
     [com.fulcrologic.fulcro.server.api-middleware :as server]
+    [com.fulcrologic.fulcro.networking.websockets :as fws]
     [ring.middleware.content-type :refer [wrap-content-type]]
-    [ring.middleware.resource :refer [wrap-resource]]))
+    [ring.middleware.not-modified :refer [wrap-not-modified]]
+    [ring.middleware.resource :refer [wrap-resource]]
+    [ring.middleware.params :refer [wrap-params]]
+    [ring.middleware.keyword-params :refer [wrap-keyword-params]]
+    [taoensso.sente.server-adapters.http-kit :refer [get-sch-adapter]]
+    [taoensso.timbre :as log]
+    [clojure.core.async :as async]))
 
 (def ^:private not-found-handler
   (fn [req]
@@ -22,9 +29,85 @@
     wrap-content-type))
 
 (defonce stop-fn (atom nil))
+(def *websocket (atom nil))
+(comment
+  (deref *websocket)
+  (def ^com.fulcrologic.fulcro.networking.websockets.Websockets testws (deref *websocket))
+  (push testws "a" :x {:a 5})
+  (map println (.getInterfaces (type testws)))
+  (keys testws)
+  (type @*websocket)
+  (.push (deref *websocket) "a" :x {:a 5})
+  (keys @*websocket)
+  (-> @*websocket :listeners)
+  (-> @*websocket :connected-uids deref)
+  (-> @*websocket)
+  )
+
+(def *request-debug (atom nil))
+(comment
+  (-> @*request-debug)
+  (-> @*request-debug :env keys)
+  (-> @*request-debug :query)
+  (-> @*request-debug :query first first namespace)
+  (-> @*request-debug :env :websockets :connected-uids deref :any)
+  (-> @*request-debug :env :cid)
+  (.push @*websocket (-> @*request-debug :env :cid) :x {:a 5})
+  )
+(defn query-parser*
+  "Figures out what we're doing, proxies onwards"
+  [env query]
+  (let [websockets (:websockets env)
+        user (:cid env)
+        all-other-users (-> env :websockets :connected-uids deref :any
+                            ; For the moment we're not precluding the user for testing TODO
+                            ;(disj user)
+                            )
+        ]
+    ;; Debug
+    (reset! *request-debug
+            {:env env
+             :query query})
+    (async/go
+      (let [mutations (vec (filter #(-> % first namespace (= "hp.mutations")) query))]
+        (when (pos? (count mutations))
+          (log/info "Pushing to " all-other-users)
+          (doseq [uid all-other-users]
+            (.push websockets uid :state-mutations query)))))
+    (api-parser query)))
+(defn query-parser
+  "Used for a redirect when doing RAD"
+  [env query]
+  (query-parser* env query))
 
 (defn start []
-  (reset! stop-fn (http/run-server middleware {:port 3000})))
+  (let [websockets
+        (fws/start!
+          (fws/make-websockets
+            query-parser
+            {:http-server-adapter (get-sch-adapter)
+             :parser-accepts-env? true
+             :sente-options {:csrf-token-fn (constantly "bad-csrf")}}))
+        middleware
+        (-> not-found-handler
+            (server/wrap-api {:uri    "/api"
+                              :parser api-parser})
+            (fws/wrap-api websockets)
+            wrap-keyword-params
+            wrap-params
+            (server/wrap-transit-params)
+            (server/wrap-transit-response)
+            (wrap-resource "public")
+            wrap-content-type
+            wrap-not-modified)
+        server-stop-fn
+        (http/run-server middleware {:host "0.0.0.0" :port 3000})
+        ]
+    (reset! *websocket websockets)
+    (reset! stop-fn
+            (fn []
+              (fws/stop! websockets)
+              (server-stop-fn)))))
 
 (defn stop []
   (when @stop-fn

@@ -11,7 +11,7 @@
   (app/mount! app ui/Root "app")
   (df/load! app :friends ui/PersonList)
   (df/load! app :enemies ui/PersonList)
-  (df/load! app [:crisis/id "first"] ui/Crisis)
+  (df/load! app :crisis/list ui/Crisis)
   (js/console.log "Loaded"))
 
 (defn ^:export refresh

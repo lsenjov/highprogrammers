@@ -42,14 +42,23 @@
   {::pc/output [{:enemies [:list/id]}]}
   {:enemies {:list/id :enemies}})
 
-(pc/defresolver crisis-resolver [env {:crisis/keys [id]}]
+(pc/defresolver crisis-resolver [env {:crisis/keys [id] :as input}]
   {::pc/input #{:crisis/id}
    ::pc/output [:crisis/id :crisis/text :crisis/description]}
-  (get-in @*db [:crisis/id id]))
+  (get-in @*db [:crisis/list id]))
 
-(pc/defresolver crisis-all-resolver [env _]
-  {::pc/output [:crisis/id [:crisis/id :crisis/text :crisis/description]]}
-  (get-in @*db [:crisis/id])
-  )
+(pc/defresolver crisis-all-resolver [env input]
+  {::pc/output [{:crisis/list [:crisis/id :crisis/text :crisis/description]}]}
+  {:crisis/list
+   (->> @*db
+        :crisis/list
+        keys
+        (mapv (fn [id] {:crisis/id id})))})
 
-(def resolvers [person-resolver list-resolver friends-resolver enemies-resolver crisis-resolver crisis-all-resolver])
+(def resolvers [person-resolver
+                list-resolver
+                friends-resolver
+                enemies-resolver
+                crisis-resolver
+                crisis-all-resolver
+                ])
