@@ -22,9 +22,24 @@
       ;:remote-http (http/fulcro-http-remote {})
       }}))
 
+(defn add-wssync-to-symbol
+  [sym]
+  {:pre [(namespace sym)]}
+  (let [sym-ns (namespace sym)
+        sym-name (name sym)]
+    (symbol sym-ns (str sym-name "-wssync"))))
+(defn add-wssync-to-mutation
+  [mut]
+  ;; We assume the first item is a symbol
+  (cons (add-wssync-to-symbol (first mut))
+        (rest mut)))
+(comment
+  (add-wssync-to-mutation '(asdf/qwer [15 5])))
 (defn apply-mutations
   [mutations]
-  (comp/transact! app mutations))
+  (->> mutations
+       (mapv add-wssync-to-mutation)
+       (comp/transact! app)))
 (defn push-handler*
   [{:keys [topic msg]}]
   (case topic

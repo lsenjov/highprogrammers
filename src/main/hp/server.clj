@@ -28,46 +28,21 @@
     (wrap-resource "public")
     wrap-content-type))
 
-(defonce stop-fn (atom nil))
-(def *websocket (atom nil))
-(comment
-  (deref *websocket)
-  (def ^com.fulcrologic.fulcro.networking.websockets.Websockets testws (deref *websocket))
-  (push testws "a" :x {:a 5})
-  (map println (.getInterfaces (type testws)))
-  (keys testws)
-  (type @*websocket)
-  (.push (deref *websocket) "a" :x {:a 5})
-  (keys @*websocket)
-  (-> @*websocket :listeners)
-  (-> @*websocket :connected-uids deref)
-  (-> @*websocket)
-  )
+(defonce
+  ^{:doc "We store the server stop in here"}
+  stop-fn (atom nil))
+(defonce
+  ^{:doc "When we create the websocket we throw it in this atom, so we can use it for other things"}
+  *websocket (atom nil))
 
-(def *request-debug (atom nil))
-(comment
-  (-> @*request-debug)
-  (-> @*request-debug :env keys)
-  (-> @*request-debug :query)
-  (-> @*request-debug :query first first namespace)
-  (-> @*request-debug :env :websockets :connected-uids deref :any)
-  (-> @*request-debug :env :cid)
-  (.push @*websocket (-> @*request-debug :env :cid) :x {:a 5})
-  )
 (defn query-parser*
   "Figures out what we're doing, proxies onwards"
   [env query]
   (let [websockets (:websockets env)
         user (:cid env)
         all-other-users (-> env :websockets :connected-uids deref :any
-                            ; For the moment we're not precluding the user for testing TODO
-                            ;(disj user)
-                            )
-        ]
-    ;; Debug
-    (reset! *request-debug
-            {:env env
-             :query query})
+                            ;; Don't return to sender
+                            (disj user))]
     (async/go
       (let [mutations (vec (filter #(-> % first namespace (= "hp.mutations")) query))]
         (when (pos? (count mutations))
@@ -101,8 +76,7 @@
             wrap-content-type
             wrap-not-modified)
         server-stop-fn
-        (http/run-server middleware {:host "0.0.0.0" :port 3000})
-        ]
+        (http/run-server middleware {:host "0.0.0.0" :port 3000})]
     (reset! *websocket websockets)
     (reset! stop-fn
             (fn []
