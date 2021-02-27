@@ -8,4 +8,12 @@
                    :modules    {:main {:init-fn hp.client/init
                                        :entries [hp.client]}}
                    :devtools   {:after-load hp.client/refresh
-                                :preloads   [com.fulcrologic.fulcro.inspect.preload]}}}}
+                                :preloads   [com.fulcrologic.fulcro.inspect.preload]}}
+            :cards {:target           :browser
+                    :output-dir       "resources/public/js/workspaces"
+                    :asset-path       "/js/workspaces"
+                    :devtools         {:preloads   [fulcro.inspect.preload ] ; include for Fulcro Inspect support
+                                       :http-root          "resources/public"
+                                       :http-port          3689
+                                       :http-resource-root "."}
+                    :modules          {:main {:entries [hp.workspaces.main]}}}}}

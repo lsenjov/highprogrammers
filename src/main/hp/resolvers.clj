@@ -2,7 +2,7 @@
   (:require
     [com.wsscode.pathom.core :as p]
     [com.wsscode.pathom.connect :as pc]
-    [hp.db :refer [*db]]))
+    [hp.db :as db :refer [*db]]))
 
 (def db
   (atom
@@ -42,18 +42,28 @@
   {::pc/output [{:enemies [:list/id]}]}
   {:enemies {:list/id :enemies}})
 
-(pc/defresolver crisis-resolver [env {:crisis/keys [id] :as input}]
+(pc/defresolver
+  crisis-resolver
+  [env {:crisis/keys [id] :as input}]
   {::pc/input #{:crisis/id}
    ::pc/output [:crisis/id :crisis/text :crisis/description]}
-  (get-in @*db [:crisis/list id]))
+  (->
+    (db/q
+      '{:find  [(pull ?crisis [*])]
+        :in    [$ ?id]
+        :where [[?crisis :crisis/id ?id]]}
+      [id])
+    ffirst))
 
 (pc/defresolver crisis-all-resolver [env input]
-  {::pc/output [{:crisis/list [:crisis/id :crisis/text :crisis/description]}]}
+  {::pc/output [{:crisis/list [:crisis/id]}]}
   {:crisis/list
-   (->> @*db
-        :crisis/list
-        keys
-        (mapv (fn [id] {:crisis/id id})))})
+   (->>
+     '{:find  [(pull ?crisis [:crisis/id])]
+       :where [[?crisis :crisis/id _]]}
+     db/q
+     (apply concat))
+   })
 
 (def resolvers [person-resolver
                 list-resolver
