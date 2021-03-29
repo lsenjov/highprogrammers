@@ -7,3 +7,5 @@ node_modules
 .shadow-cljs/
 resources/public/js/
 *.iml
+.clj-kondo/.cache/
+.calva/

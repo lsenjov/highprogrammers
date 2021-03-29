@@ -1,0 +1,3 @@
+{:config-paths ["./cache"]
+ :lint-as {clojure.core.cache/defcache clojure.core/defprotocol
+           com.fulcrologic.fulcro.components/defsc clojure.core/defn}}
