@@ -6,3 +6,4 @@ node_modules
 .rebl/
 .shadow-cljs/
 resources/public/js/
+*.iml
