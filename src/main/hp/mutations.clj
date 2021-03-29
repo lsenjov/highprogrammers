@@ -1,5 +1,6 @@
 (ns hp.mutations
   (:require [hp.resolvers :refer [db]]
+            [hp.db]
             [com.wsscode.pathom.connect :as pc]
             [taoensso.timbre :as log]))
 
@@ -44,6 +45,10 @@
                 [env args]
                 {::pc/sym `edit-crisis}
                 (tap> args)
-                (log/info "Editing crisis:" args))
+                (log/info "Editing crisis:" args)
+                (println "Editing crisis:" args)
+                (hp.db/trans [args])
+                (println "Sent")
+                args)
 
 (def mutations [delete-person add-person edit-crisis])

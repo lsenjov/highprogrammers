@@ -29,3 +29,10 @@
                                           conj
                                           [:person/id person-id]))))))
   (remote [env] true))
+
+(defmutation edit-crisis
+             [{:crisis/keys [id] :as crisis}]
+             (action [{:keys [state]}]
+                     (swap! state
+                       (fn [db] (update-in db [:crisis/id id] merge crisis))))
+             (remote [env] true))

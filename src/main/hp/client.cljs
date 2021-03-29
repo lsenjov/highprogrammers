@@ -1,6 +1,7 @@
 (ns hp.client
   (:require [hp.application :refer [app]]
             [hp.ui :as ui]
+            [hp.ui.crisis :as crisis]
             [com.fulcrologic.fulcro.application :as app]
             [com.fulcrologic.fulcro.data-fetch :as df]))
 
@@ -8,9 +9,9 @@
   "Shadow-cljs sets this up to be our entry-point function. See shadow-cljs.edn `:init-fn` in the modules of the main build."
   []
   (app/mount! app ui/Root "app")
-  (df/load! app :friends ui/PersonList)
-  (df/load! app :enemies ui/PersonList)
-  (df/load! app :crisis/list ui/Crisis)
+  ;; (df/load! app :friends ui/PersonList)
+  ;; (df/load! app :enemies ui/PersonList)
+  (df/load! app :crisis/list crisis/Crisis)
   (js/console.log "Loaded"))
 
 (defn ^:export refresh

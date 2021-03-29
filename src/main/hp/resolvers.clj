@@ -1,7 +1,7 @@
 (ns hp.resolvers
   (:require [com.wsscode.pathom.core :as p]
             [com.wsscode.pathom.connect :as pc]
-            [hp.db :as db :refer [*db]]))
+            [hp.db :as db]))
 
 (def db
   (atom

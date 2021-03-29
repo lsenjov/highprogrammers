@@ -1,5 +1,6 @@
 (ns hp.ui
   (:require [hp.mutations :as api]
+            [hp.ui.crisis :as crisis]
             [com.fulcrologic.fulcro.components :as comp :refer [defsc]]
             #?(:clj [com.fulcrologic.fulcro.dom-server :as dom]
                :cljs [com.fulcrologic.fulcro.dom :as dom])))
@@ -56,42 +57,26 @@
     "Add random person"))
 (def ui-person-adder (comp/factory PersonAdder))
 
-(defsc Crisis
-       [this {:crisis/keys [id text description] :as props}]
-       {:query [:crisis/id :crisis/text :crisis/description]
-        :ident (fn [] [:crisis/id id])}
-       (println "this:" this)
-       (println "stuff:" id text description)
-       (dom/div (dom/div "Crisis id: " id)
-                (dom/div (or text "No text"))
-                (dom/div (or description "No description"))))
-(def ui-crisis (comp/factory Crisis))
-
-(defsc CrisisForm
-       [this {:crisis/keys [id text description] :as props}]
-       {:query [:crisis/id :crisis/text :crisis/description]
-        :ident (fn [] [:crisis/id id])
-        :form-fields #{:crisis/text :crisis/description}}
-       (println "CrisisForm:" props)
-       (dom/div (dom/div "Crisis id:" id) (dom/input {:value text})))
-(def ui-crisis-form (comp/factory CrisisForm))
-
-(defsc CrisisList
-       [this crisises]
-       {:query [:crisis/list {:crisis/id (comp/get-query Crisis)}]}
-       (println "CrisisList:" crisises)
-       (map ui-crisis-form crisises))
-(def ui-crisis-list (comp/factory CrisisList))
+(defsc Debug
+       [this props]
+       {:query []}
+       (dom/div #?(:cljs (with-out-str
+                           (cljs.pprint/pprint
+                             (com.fulcrologic.fulcro.application/current-state
+                               hp.application/app))))))
+(def ui-debug (comp/factory Debug))
 
 (defsc Root
        [this {:keys [friends enemies] crisises :crisis/list :as props}]
        {:query [{:friends (comp/get-query PersonList)}
                 {:enemies (comp/get-query PersonList)}
-                {:crisis/list (comp/get-query Crisis)}]
+                {:crisis/list (comp/get-query crisis/Crisis)}]
         :initial-state {}}
-       (dom/div (dom/h3 "Friends")
-                (when friends (ui-person-list friends))
-                (dom/h3 "Enemies")
-                (when enemies (ui-person-list enemies))
-                (dom/h3 "Crisises")
-                (when crisises (ui-crisis-list crisises))))
+       (dom/div
+         ;; (dom/h3 "Friends")
+         ;; (when friends (ui-person-list friends))
+         ;; (dom/h3 "Enemies")
+         ;; (when enemies (ui-person-list enemies))
+         (dom/h3 "Crisises")
+         (when crisises (crisis/ui-crisis-list crisises))
+         (dom/pre (ui-debug))))
