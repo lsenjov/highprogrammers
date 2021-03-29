@@ -1,9 +1,8 @@
 (ns hp.client
-  (:require
-    [hp.application :refer [app]]
-    [hp.ui :as ui]
-    [com.fulcrologic.fulcro.application :as app]
-    [com.fulcrologic.fulcro.data-fetch :as df]))
+  (:require [hp.application :refer [app]]
+            [hp.ui :as ui]
+            [com.fulcrologic.fulcro.application :as app]
+            [com.fulcrologic.fulcro.data-fetch :as df]))
 
 (defn ^:export init
   "Shadow-cljs sets this up to be our entry-point function. See shadow-cljs.edn `:init-fn` in the modules of the main build."

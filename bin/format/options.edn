@@ -1,0 +1,12 @@
+{:map {:comma? false}
+ ;; Stop it from wrapping comments. Should have done this a while ago
+ :comment {:wrap? false}
+ ;; Set as :fn so it goes
+ ;; (testing "test name"
+ ;;   (is ...
+ :fn-map {"testing" :fn
+          "reg-sub" :arg1
+          "reg-sub-raw" :arg1
+          "reg-event-fx" :arg1
+          }
+}

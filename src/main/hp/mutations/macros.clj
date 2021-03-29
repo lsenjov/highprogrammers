@@ -13,11 +13,11 @@
   [mutation-name & body]
   (let [no-remotes-body (remove #(and (list? %) (= 'remote (first %))) body)
         wssync-name (add-wssync-to-symbol mutation-name)]
-    `(do
-       (com.fulcrologic.fulcro.mutations/defmutation ~mutation-name ~@body)
-       (com.fulcrologic.fulcro.mutations/defmutation ~wssync-name ~@no-remotes-body))))
+    `(do (com.fulcrologic.fulcro.mutations/defmutation ~mutation-name ~@body)
+         (com.fulcrologic.fulcro.mutations/defmutation ~wssync-name
+                                                       ~@no-remotes-body))))
 
-(comment
-  (macroexpand-1 '(def-wssync-mutation delete-person [env {list-id   :list/id
-                                                  person-id :person/id}]
-                    (remote [env] 0))))
+(comment (macroexpand-1
+           '(def-wssync-mutation delete-person
+                                 [env {list-id :list/id person-id :person/id}]
+                                 (remote [env] 0))))

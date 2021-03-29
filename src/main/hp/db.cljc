@@ -1,37 +1,25 @@
 (ns hp.db
   "Initial DB data"
-  (:require
-    [com.fulcrologic.fulcro.algorithms.merge :as merge]
-    [datomic.client.api :as dato]))
+  (:require [com.fulcrologic.fulcro.algorithms.merge :as merge]
+            [datomic.client.api :as dato]))
 
 (def initial-db
-  {:crisis/list
-   {"first" {:crisis/id "first"
-             :crisis/text "A test crisis"
-             :crisis/description "A much longer description here"}
-    "second" {:crisis/id "second"
-              :crisis/text "A second test crisis"
-              :crisis/description "A much longer description here"}}})
+  {:crisis/list {"first" {:crisis/id "first"
+                          :crisis/text "A test crisis"
+                          :crisis/description "A much longer description here"}
+                 "second" {:crisis/id "second"
+                           :crisis/text "A second test crisis"
+                           :crisis/description
+                             "A much longer description here"}}})
 
 (def *db (atom initial-db))
 
 (def client
-  (dato/client
-    {:server-type :dev-local
-     :system "dev"
-     :storage-dir :mem
-     }))
+  (dato/client {:server-type :dev-local :system "dev" :storage-dir :mem}))
 (def db-name "devdb")
-(dato/delete-database
-  client
-  {:db-name db-name})
-(dato/create-database
-  client
-  {:db-name db-name})
-(def conn
-  (dato/connect
-    client
-    {:db-name db-name}))
+(dato/delete-database client {:db-name db-name})
+(dato/create-database client {:db-name db-name})
+(def conn (dato/connect client {:db-name db-name}))
 
 (def crisis-schema
   [{:db/ident :crisis/id
@@ -50,16 +38,14 @@
 (dato/transact conn {:tx-data crisis-schema})
 (dato/transact
   conn
-  {:tx-data [{:crisis/id "first"
-              :crisis/text "A test crisis"
-              :crisis/description "A much longer description here"}
-             {:crisis/id "second"
-              :crisis/text "A second test crisis"
-              :crisis/description "A much longer description here"}]})
+  {:tx-data
+     [{:crisis/id "first"
+       :crisis/text "A test crisis"
+       :crisis/description "A much longer description here"}
+      {:crisis/id "second"
+       :crisis/text "A second test crisis"
+       :crisis/description
+         "A much longer description here\npossibly going over multiple lines"}]})
 (defn q
-  ([query args]
-   (dato/q
-     {:query query
-      :args  (concat [(dato/db conn)] args)}))
-  ([query]
-   (q query [])))
+  ([query args] (dato/q {:query query :args (concat [(dato/db conn)] args)}))
+  ([query] (q query [])))
