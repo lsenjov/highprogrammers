@@ -23,5 +23,6 @@
 (comment (start) (restart))
 
 ;; When dev, start repl server
-(println "Starting server")
+(defonce _start (do (println "Starting server") (start)))
+
 (comment (restart))

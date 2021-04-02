@@ -47,8 +47,24 @@
                 (tap> args)
                 (log/info "Editing crisis:" args)
                 (println "Editing crisis:" args)
-                (hp.db/trans [args])
+                (println (hp.db/add-docs [args]))
                 (println "Sent")
                 args)
 
-(def mutations [delete-person add-person edit-crisis])
+(pc/defmutation remove-crisis
+                [env {id :crisis/id :as crisis}]
+                {::pc/sym `remove-crisis}
+                (tap> crisis)
+                (println "Removing crisis:" crisis)
+                (hp.db/trans {:tx-data [[:db/retractEntity [:crisis/id id]]]})
+                [[:crisis/list] [:crisis/id id]])
+
+(pc/defmutation add-crisis
+                [env crisis]
+                {::pc/sym `add-crisis}
+                (tap> crisis)
+                (println (hp.db/add-docs [crisis]))
+                crisis)
+
+
+(def mutations [delete-person add-person edit-crisis remove-crisis])

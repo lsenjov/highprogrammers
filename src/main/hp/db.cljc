@@ -50,7 +50,9 @@
   ([query args] (dato/q {:query query :args (concat [(dato/db conn)] args)}))
   ([query] (q query [])))
 
-(defn trans
+(defn add-docs
   "Simple way to add basic documents"
   [data]
   (dato/transact conn {:tx-data data}))
+
+(defn trans [transaction] (dato/transact conn transaction))

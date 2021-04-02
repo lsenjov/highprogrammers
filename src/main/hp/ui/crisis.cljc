@@ -17,14 +17,6 @@
                 (dom/div (or description "No description"))))
 (def ui-crisis (comp/factory Crisis))
 
-(defsc CrisisForm
-       [this {:crisis/keys [id text description] :as props}]
-       {:query [:crisis/id :crisis/text :crisis/description]
-        :ident (fn [] [:crisis/id id])
-        :form-fields #{:crisis/text :crisis/description}}
-       (println "CrisisForm:" props)
-       (dom/div (dom/div "Crisis id:" id) (dom/input {:value text})))
-
 (defn field
   [{:keys [label valid? error-message] :as props}]
   (let [input-props (-> props
@@ -37,16 +29,15 @@
                       {:classes [(when valid? "hidden")]}
                       error-message))))
 (defsc
-  CrisisForm2
+  CrisisForm
   [this {:crisis/keys [id text description] :as props}]
   {:query [:crisis/id :crisis/text :crisis/description fs/form-config-join]
    :ident [:crisis/id :crisis/id]
    :initial-state (fn [_]
-                    (fs/add-form-config CrisisForm2
-                                        {:crisis/id (int (rand 1000))
-                                         :crisis/text ""
-                                         :crisis/description ""}))
-   :form-fields #{:crisis/id :crisis/text :crisis/description}}
+                    (fs/add-form-config
+                      CrisisForm
+                      {:crisis/id "" :crisis/text "" :crisis/description ""}))
+   :form-fields #{:crisis/text :crisis/description}}
   (let [apply-fn! (fn [evt]
                     (println "lololol")
                     (comp/transact! this
@@ -56,29 +47,38 @@
                                         :crisis/description description})]))]
     (dom/div
       (dom/h3 "Crisis form")
+      (dom/div "debug:" (pr-str props))
       (dom/div
         :.ui.form
         (field {:label "Text"
                 :value (or text "")
-                :valid? identity
+                :valid? (boolean (not-empty text))
                 :error-message "Please enter a text"
                 :onChange #(m/set-string! this :crisis/text :event %)})
         (field {:label "Description"
                 :value (or description "")
-                :valid? identity
+                :valid? (boolean (not-empty description))
                 :error-message "Please enter a description"
                 :onChange #(m/set-string! this :crisis/description :event %)})
-        (dom/button :.ui.primary.button
-                    {:onClick #(apply-fn! true)}
-                    "Apply")))))
-(def ui-crisis-form (comp/factory CrisisForm2))
+        (dom/button :.ui.primary.button {:onClick #(apply-fn! true)} "Apply")
+        (dom/button
+          :.ui.warning.button
+          {:onClick #(comp/transact! this [(hp.mutations/remove-crisis props)])}
+          "Delete")))))
+(def ui-crisis-form (comp/factory CrisisForm))
 
 
 (defsc CrisisList
        [this crisises]
-       {:query [:crisis/list {:crisis/id (comp/get-query Crisis)}]}
+       {:query [:crisis/id {:crisis/id (comp/get-query Crisis)}]}
        (println "CrisisList:" crisises)
-       (map ui-crisis-form crisises))
+       (dom/div
+         (map ui-crisis-form crisises)
+         (dom/div
+           (dom/button
+             :.ui.button
+             {:onClick #(comp/transact! this [(hp.mutations/add-crisis nil)])}
+             "Add empty crisis"))))
 (def ui-crisis-list (comp/factory CrisisList))
 
 

@@ -36,3 +36,30 @@
                      (swap! state
                        (fn [db] (update-in db [:crisis/id id] merge crisis))))
              (remote [env] true))
+
+(defmutation
+  add-crisis
+  [_]
+  (action [{:keys [state]}]
+          (swap! state
+            (fn [db]
+              (let [uuid (str (random-uuid))]
+                (-> db
+                    (assoc-in
+                      [:crisis/id uuid]
+                      {:crisis/id uuid :crisis/text "" :crisis/description ""})
+                    (update-in [:crisis/list] conj [:crisis/id uuid])))))))
+
+(defmutation
+  remove-crisis
+  [{:crisis/keys [id]}]
+  (action
+    [{:keys [state]}]
+    (swap! state
+      (fn [db]
+        (-> db
+            (update :crisis/id dissoc uuid)
+            ;; Gotta make sure it's a vector or edges don't work good
+            (update-in [:crisis/list]
+                       #(vec (remove (fn [[_ edge-id]] (= id edge-id)) %)))))))
+  (remote [env] true))
