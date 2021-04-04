@@ -22,4 +22,8 @@
          (api-parser [{:friends [:list/id {:list/people [:person/name]}]}])
          (api-parser [{[:crisis/id "first"] [:crisis/text]}])
          (api-parser [{:crisis/list [:crisis/id :crisis/text
-                                     :crisis/description]}]))
+                                     :crisis/description]}])
+         (api-parser [{:crisis/list [:crisis/id {:tag/tags [:tag/id :tag/name]}]}])
+         (api-parser [:crisis/list])
+         (api-parser [{[:tag/id "classic"] [:tag/id :tag/name]}])
+         (api-parser [{:tag/list [:tag/id :tag/name]}]))

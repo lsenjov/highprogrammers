@@ -63,3 +63,15 @@
             (update-in [:crisis/list]
                        #(vec (remove (fn [[_ edge-id]] (= id edge-id)) %)))))))
   (remote [env] true))
+
+(defmutation
+  add-tag
+  [{:tag/keys [id] :as tag}]
+  (action [{:keys [state]}]
+          (swap! state
+                 (fn [db]
+                   (let []
+                     (-> db
+                         (assoc-in
+                          [:tag/id id]
+                          tag)))))))

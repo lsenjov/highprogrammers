@@ -1,7 +1,8 @@
 (ns hp.client
   (:require [hp.application :refer [app]]
             [hp.ui :as ui]
-            [hp.ui.crisis :as crisis]
+            [hp.ui.crisis :as ui.crisis]
+            [hp.ui.tag :as ui.tag]
             [com.fulcrologic.fulcro.application :as app]
             [com.fulcrologic.fulcro.data-fetch :as df]))
 
@@ -11,7 +12,8 @@
   (app/mount! app ui/Root "app")
   ;; (df/load! app :friends ui/PersonList)
   ;; (df/load! app :enemies ui/PersonList)
-  (df/load! app :crisis/list crisis/Crisis)
+  (df/load! app :crisis/list ui.crisis/Crisis)
+  (df/load! app :tag/list ui.tag/Tag)
   (js/console.log "Loaded"))
 
 (defn ^:export refresh

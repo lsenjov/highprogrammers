@@ -16,6 +16,8 @@
   See documentation of tools.namespace.repl for more information."
   []
   (server/stop)
+  ;; Wait for websocket server to die
+  (Thread/sleep 3000)
   (refresh :after 'user/start))
 
 ;; These are here so we can run them from the editor with kb shortcuts.  See IntelliJ's "Send Top Form To REPL" in

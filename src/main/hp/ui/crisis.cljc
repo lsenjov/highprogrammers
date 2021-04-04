@@ -1,5 +1,6 @@
 (ns hp.ui.crisis
   (:require [hp.mutations]
+            [hp.ui.tag :as tag]
             [com.fulcrologic.fulcro.components :as comp :refer [defsc]]
             [com.fulcrologic.fulcro.mutations :as m]
             #?(:clj [com.fulcrologic.fulcro.dom-server :as dom]
@@ -8,12 +9,11 @@
 
 (defsc Crisis
        [this {:crisis/keys [id text description] :as props}]
-       {:query [:crisis/id :crisis/text :crisis/description]
+       {:query [:crisis/id :crisis/text :crisis/description :tag/tags]
         :ident (fn [] [:crisis/id id])}
        (println "this:" this)
        (println "stuff:" id text description)
-       (dom/div (dom/div "Crisis id: " id)
-                (dom/div (or text "No text"))
+       (dom/div (dom/div (or text "No text"))
                 (dom/div (or description "No description"))))
 (def ui-crisis (comp/factory Crisis))
 
@@ -64,7 +64,8 @@
         (dom/button
           :.ui.warning.button
           {:onClick #(comp/transact! this [(hp.mutations/remove-crisis props)])}
-          "Delete")))))
+          "Delete"))
+     (tag/ui-tagswrapper this))))
 (def ui-crisis-form (comp/factory CrisisForm))
 
 

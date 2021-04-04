@@ -1,6 +1,7 @@
 (ns hp.resolvers
   (:require [com.wsscode.pathom.core :as p]
             [com.wsscode.pathom.connect :as pc]
+            [taoensso.timbre :as log]
             [hp.db :as db]))
 
 (def db
@@ -44,8 +45,8 @@
 (pc/defresolver crisis-resolver
                 [env {:crisis/keys [id] :as input}]
                 {::pc/input #{:crisis/id}
-                 ::pc/output [:crisis/id :crisis/text :crisis/description]}
-                (-> (db/q '{:find [(pull ?crisis [*])]
+                 ::pc/output [:crisis/id :crisis/text :crisis/description :tag/tags]}
+                (-> (db/q '{:find [(pull ?crisis [* {:tag/tags [:tag/id]}])]
                             :in [$ ?id]
                             :where [[?crisis :crisis/id ?id]]}
                           [id])
@@ -59,6 +60,24 @@
                                    db/q
                                    (apply concat))})
 
+(pc/defresolver tag-resolver
+                [env {:tag/keys [id] :as input}]
+                {::pc/input #{:tag/id}
+                 ::pc/output [:tag/id :tag/name]}
+                (log/info "tag-resolver:" id)
+                (-> (db/q '{:find [(pull ?tag [:tag/id :tag/name])]
+                            :in [$ ?id]
+                            :where [[?tag :tag/id ?id]]}
+                          [id])
+                    ffirst))
+(pc/defresolver tags-all-resolver
+  [env input]
+  {::pc/output [{:tag/list [:tag/id]}]}
+  {:tag/list
+   (->> (db/q '{:find [(pull ?tag [:tag/id])]
+                :where [[?tag :tag/id _]]})
+        (apply concat))})
+
 (def resolvers
   [person-resolver list-resolver friends-resolver enemies-resolver
-   crisis-resolver crisis-all-resolver])
+   crisis-resolver crisis-all-resolver tag-resolver tags-all-resolver])

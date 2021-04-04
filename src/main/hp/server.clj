@@ -43,7 +43,9 @@
                             :any
                             ;; Don't return to sender
                             (disj user))]
-    (async/go (let [mutations (vec (filter #(-> %
+    ;; Sends mutation to other clients
+    ;; Currently broken
+    #_(async/go (let [mutations (vec (filter #(-> %
                                                 first
                                                 namespace
                                                 (= "hp.mutations"))

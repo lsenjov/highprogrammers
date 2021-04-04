@@ -2,7 +2,7 @@
  :deps    {org.clojure/clojure               {:mvn/version "1.10.2"}
            org.clojure/core.async            {:mvn/version "1.3.610"}
            com.datomic/dev-local             {:mvn/version "0.9.232"}
-           com.fulcrologic/fulcro            {:mvn/version "3.4.17"}
+           com.fulcrologic/fulcro            {:mvn/version "3.4.20"}
            com.fulcrologic/fulcro-websockets {:mvn/version "3.3.0"}
            edn-query-language/eql            {:mvn/version "1.0.2"}
            http-kit/http-kit                 {:mvn/version "2.3.0"}
