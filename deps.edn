@@ -7,9 +7,11 @@
            edn-query-language/eql            {:mvn/version "1.0.2"}
            http-kit/http-kit                 {:mvn/version "2.3.0"}
            ring/ring-core                    {:mvn/version "1.6.3"}
-           com.wsscode/pathom                {:mvn/version "2.2.15"}
+           com.wsscode/pathom                {:mvn/version "2.3.1"}
            com.taoensso/encore               {:mvn/version "3.13.0"}
-           com.taoensso/timbre               {:mvn/version "4.10.0"}}
+           com.taoensso/timbre               {:mvn/version "4.10.0"}
+           com.wsscode/pathom-datomic        {:git/url "https://github.com/wilkerlucio/pathom-datomic.git"
+                                              :sha     "d1ebb8447342a7b1279dc23bc4ab9942a4d8171b"}}
 
  :aliases {:dev   {:extra-paths ["src/dev"]
                    :extra-deps  {org.clojure/clojurescript   {:mvn/version "1.10.742"}

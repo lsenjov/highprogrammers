@@ -22,9 +22,9 @@
 
 (def pathom-parser
   (p/parser {::p/env {::p/reader [p/map-reader
-pc/reader3
-pc/open-ident-reader
-p/env-placeholder-reader]
+                                  pc/reader3
+                                  pc/open-ident-reader
+                                  p/env-placeholder-reader]
                       ::pc/mutation-join-globals [:tempids]}
              ::p/mutate pc/mutate
              ::p/plugins [(pc/connect-plugin {::pc/register resolvers})
@@ -41,9 +41,15 @@ p/env-placeholder-reader]
 (comment (api-parser [{:friends [:list/id {:list/people [:person/name]}]}
                       {:enemies [:list/id {:list/people [:person/name]}]}])
          (api-parser [{:friends [:list/id {:list/people [:person/name]}]}])
-         (api-parser [{[:crisis/id "first"] [:crisis/id {:tag/tags [:tag/id :tag/name]}]}])
+         (api-parser [{[:crisis/id "first"]
+                       [:crisis/id {:tag/tags [:tag/id]} :tag/tags->e]}])
+         (api-parser [{[:crisis/id "second"]
+                       [:crisis/id :crisis/text :crisis/description
+                        {:tag/tags [:tag/id]} :tag/tags->e]}])
          (api-parser [{:crisis/list [:crisis/id :crisis/text
-                                     :crisis/description {:tag/tags [:tag/id :tag/name]}]}])
+                                     :crisis/description
+                                     {:tag/tags [:tag/id :tag/name]}
+                                     :tag/tags->e]}])
          (api-parser [{:crisis/list [:crisis/id {:tag/tags [:tag/id :tag/name]}]}])
          (api-parser [:crisis/list])
          (api-parser [{[:tag/id "classic"] [:tag/id :tag/name]}])

@@ -1,6 +1,7 @@
 (ns hp.ui
   (:require [hp.mutations :as api]
             [hp.ui.crisis :as crisis]
+            [hp.ui.tag :as tag]
             [com.fulcrologic.fulcro.components :as comp :refer [defsc]]
             #?(:clj [com.fulcrologic.fulcro.dom-server :as dom]
                :cljs [com.fulcrologic.fulcro.dom :as dom])))
@@ -67,10 +68,13 @@
 (def ui-debug (comp/factory Debug))
 
 (defsc Root
-       [this {:keys [friends enemies] crisises :crisis/list :as props}]
+       [this {:keys [friends enemies]
+              crisises :crisis/list
+              tags :tag/list :as props}]
        {:query [{:friends (comp/get-query PersonList)}
                 {:enemies (comp/get-query PersonList)}
-                {:crisis/list (comp/get-query crisis/Crisis)}]
+                {:crisis/list (comp/get-query crisis/Crisis)}
+                {:tag/list (comp/get-query tag/Tag)}]
         :initial-state {}}
        (dom/div
          ;; (dom/h3 "Friends")
@@ -79,4 +83,6 @@
          ;; (when enemies (ui-person-list enemies))
          (dom/h3 "Crisises")
          (when crisises (crisis/ui-crisis-list crisises))
+        (dom/h3 "Tags")
+        (tag/ui-tags tags)
          (dom/pre (ui-debug))))
