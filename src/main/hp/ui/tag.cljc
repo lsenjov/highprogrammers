@@ -9,7 +9,7 @@
 (defsc Tag
   [this {:tag/keys [id name] :as props}]
   {:query [:tag/id :tag/name]
-   :ident (fn [] [:tag/id id])}
+   :ident :tag/id}
   (dom/div
    (dom/div "Tag:" (pr-str props))
    (dom/div "id:" id)
@@ -18,8 +18,7 @@
 
 (defsc Tags
   [this tags]
-  {:query [:tag/list
-           {:tag/id [:tag/id :tag/name]}]}
+  {:query [:tag/id {:tag/id (comp/get-query Tag)}]}
   (dom/div
    (dom/div "Tags:" (pr-str tags))
    (map ui-tag tags)))
@@ -32,6 +31,6 @@
   (dom/div
    (dom/div "TagsWrapper " (pr-str tags))
    (when-not (keyword? tags)
-     (ui-tags (->> tags (mapv (fn [{id :tag/id}] [:tag/id id])))))
+     (ui-tags {:tag/id (mapv (fn [{id :tag/id}] [:tag/id id]) tags)}))
    (dom/button :.ui.button {} "Add tags")))
 (def ui-tagswrapper (comp/factory TagsWrapper))

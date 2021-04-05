@@ -33,6 +33,27 @@
                                                         ::pcd/conn hp.db/conn
                                                         ::pcd/whitelist whitelist-attributes
                                                         ::pcd/ident-attributes ident-attributes)))
+                          {::pc/wrap-resolve
+                           (fn [resolve]
+                             (fn [env input]
+                               (log/info "wrap-resolve:" input)
+                               (let [res (resolve env input)
+                                     edges (select-keys res [:tag/tags])
+                                     _ (log/info "edges:" edges)
+                                     converted
+                                     (->> edges
+                                          (filter (fn [[_ v]] (coll? v)))
+                                          ;; Convert to an edge, given the id
+                                          (map (fn [[k vs]]
+                                                 (let [id-k (keyword (namespace k) "id")
+                                                       new-k (keyword (namespace k) "id->e")]
+                                                   [k (map (fn [v]
+                                                             (println "ks:" id-k new-k k v)
+                                                             [new-k (get v id-k)])
+                                                           vs)])))
+                                          (into {}))]
+                                 (log/info "converted:" converted)
+                                 (merge res converted))))}
                           p/error-handler-plugin
                           p/trace-plugin]}))
 
@@ -42,10 +63,10 @@
                       {:enemies [:list/id {:list/people [:person/name]}]}])
          (api-parser [{:friends [:list/id {:list/people [:person/name]}]}])
          (api-parser [{[:crisis/id "first"]
-                       [:crisis/id {:tag/tags [:tag/id]} :tag/tags->e]}])
+                       [:crisis/id {:tag/tags [:tag/id]} :tag/id->e]}])
          (api-parser [{[:crisis/id "second"]
                        [:crisis/id :crisis/text :crisis/description
-                        {:tag/tags [:tag/id]} :tag/tags->e]}])
+                        {:tag/tags [:tag/id]} :tag/id->e]}])
          (api-parser [{:crisis/list [:crisis/id :crisis/text
                                      :crisis/description
                                      {:tag/tags [:tag/id :tag/name]}
