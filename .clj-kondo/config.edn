@@ -4,4 +4,5 @@
            com.wsscode.pathom.connect/defresolver clojure.core/defn
            com.wsscode.pathom.connect/defmutation clojure.core/defn
            com.fulcrologic.fulcro.mutations/defmutation clojure.core/defn
-           hp.mutations.macros/def-wssync-mutation clojure.core/defn}}
+           hp.mutations.macros/def-wssync-mutation clojure.core/defn
+           hp.resolvers/defresolver clojure.core/defn}}
