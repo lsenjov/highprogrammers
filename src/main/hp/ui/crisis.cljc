@@ -8,16 +8,14 @@
             [com.fulcrologic.fulcro.algorithms.form-state :as fs]))
 
 (defsc Crisis
-       [this {:crisis/keys [id text description]
-             tags :tag/tags
-              :as props}]
+       [this {:crisis/keys [id text description] :as props}]
        {:query [:crisis/id :crisis/text :crisis/description
-                {:tag/tags [:tag/id :tag/name]} :tag/tags->e]
-        :ident (fn [] [:crisis/id id])}
-       (dom/div
-        (dom/div (or text "No text"))
-        (dom/div (or description "No description"))
-        (tag/ui-tagswrapper props)))
+                {:tag/id->e (comp/get-query tag/Tag)}]
+        :ident :crisis/id}
+       (dom/div (dom/div (or text "No text"))
+                (dom/div (or description "No description"))
+                (dom/h4 "tagswrapper")
+                (tag/ui-tagswrapper props)))
 (def ui-crisis (comp/factory Crisis))
 
 (defn field
@@ -68,20 +66,20 @@
           :.ui.warning.button
           {:onClick #(comp/transact! this [(hp.mutations/remove-crisis props)])}
           "Delete"))
-     #_(tag/ui-tagswrapper props))))
+      #_(tag/ui-tagswrapper props))))
 (def ui-crisis-form (comp/factory CrisisForm))
 
 
-(defsc CrisisList
+(defsc
+  CrisisList
   [this crisises]
   {:query [:crisis/id {:crisis/id (comp/get-query Crisis)}]}
   (println "CrisisList:" crisises)
   (dom/div
-   ;(map ui-crisis-form crisises)
-   (map ui-crisis crisises)
-   (dom/div
-    (dom/button
-     :.ui.button
-     {:onClick #(comp/transact! this [(hp.mutations/add-crisis nil)])}
-     "Add empty crisis"))))
+    ;(map ui-crisis-form crisises)
+    (map ui-crisis crisises)
+    (dom/div (dom/button
+               :.ui.button
+               {:onClick #(comp/transact! this [(hp.mutations/add-crisis nil)])}
+               "Add empty crisis"))))
 (def ui-crisis-list (comp/factory CrisisList))

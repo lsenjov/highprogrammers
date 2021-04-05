@@ -68,21 +68,15 @@
 (def ui-debug (comp/factory Debug))
 
 (defsc Root
-       [this {:keys [friends enemies]
-              crisises :crisis/list
-              tags :tag/list :as props}]
-       {:query [{:friends (comp/get-query PersonList)}
-                {:enemies (comp/get-query PersonList)}
-                {:crisis/list (comp/get-query crisis/Crisis)}
+       [this {crisises :crisis/list tags :tag/list :as props}]
+       {:query [{:crisis/list (comp/get-query crisis/Crisis)}
                 {:tag/list (comp/get-query tag/Tag)}]
         :initial-state {}}
-       (dom/div
-         ;; (dom/h3 "Friends")
-         ;; (when friends (ui-person-list friends))
-         ;; (dom/h3 "Enemies")
-         ;; (when enemies (ui-person-list enemies))
-         (dom/h3 "Crisises")
-         (when crisises (crisis/ui-crisis-list crisises))
-        (dom/h3 "Tags")
-        (tag/ui-tags tags)
-         (dom/pre (ui-debug))))
+       (dom/div (dom/h3 "Crisises")
+                (when crisises (crisis/ui-crisis-list crisises))
+                (dom/h3 "Tags")
+                (tag/ui-tags tags)
+                (dom/h3 "props:")
+                (dom/pre (with-out-str (cljs.pprint/pprint props)))
+                (dom/h3 "debug:")
+                (dom/pre (ui-debug))))

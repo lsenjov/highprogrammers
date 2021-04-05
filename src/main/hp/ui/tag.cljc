@@ -7,30 +7,24 @@
             [com.fulcrologic.fulcro.algorithms.form-state :as fs]))
 
 (defsc Tag
-  [this {:tag/keys [id name] :as props}]
-  {:query [:tag/id :tag/name]
-   :ident :tag/id}
-  (dom/div
-   (dom/div "Tag:" (pr-str props))
-   (dom/div "id:" id)
-   (dom/div "name:" name)))
+       [this {:tag/keys [id name] :as props}]
+       {:query [:tag/id :tag/name] :ident :tag/id}
+       (dom/div (dom/pre "Tag:" (pr-str props))
+                (dom/div "id:" id)
+                (dom/div "name:" name)))
 (def ui-tag (comp/factory Tag))
 
 (defsc Tags
-  [this tags]
-  {:query [:tag/id {:tag/id (comp/get-query Tag)}]}
-  (dom/div
-   (dom/div "Tags:" (pr-str tags))
-   (map ui-tag tags)))
+       [this tags]
+       {:query [{:tag/id (comp/get-query Tag)}]}
+       (dom/div (dom/pre "Tags:" (pr-str tags)) (map ui-tag tags)))
 (def ui-tags (comp/factory Tags))
 
 (defsc TagsWrapper
-  "Like tags, but for an object that has tags"
-  [this {tags :tag/tags :as props}]
-  {:query [{:tag/tags (comp/get-query Tags)}]}
-  (dom/div
-   (dom/div "TagsWrapper " (pr-str tags))
-   (when-not (keyword? tags)
-     (ui-tags {:tag/id (mapv (fn [{id :tag/id}] [:tag/id id]) tags)}))
-   (dom/button :.ui.button {} "Add tags")))
+       "Like tags, but for an object that has tags"
+       [this {tags :tag/id->e :as props}]
+       {:query [{:tag/id->e (comp/get-query Tags)}]}
+       (dom/div (dom/pre "TagsWrapper " (pr-str tags))
+                (when-not (keyword? tags) (ui-tags tags))
+                (dom/button :.ui.button {} "Add tags")))
 (def ui-tagswrapper (comp/factory TagsWrapper))
