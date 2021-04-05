@@ -7,16 +7,20 @@
             [com.fulcrologic.fulcro.algorithms.form-state :as fs]))
 
 (defsc Tag
-  [this {:tag/keys [id name]}]
+  [this {:tag/keys [id name] :as props}]
   {:query [:tag/id :tag/name]
    :ident (fn [] [:tag/id id])}
-  (dom/div "Tag name:" name))
+  (dom/div
+   (dom/div "Tag:" (pr-str props))
+   (dom/div "id:" id)
+   (dom/div "name:" name)))
 (def ui-tag (comp/factory Tag))
 
 (defsc Tags
   [this tags]
-  {:query [[:tag/id :tag/name]]}
+  {:query [{:tag/id [:tag/id :tag/name]}]}
   (dom/div
+   (dom/div "Tags:" (pr-str tags))
    (map ui-tag tags)))
 (def ui-tags (comp/factory Tags))
 
@@ -26,6 +30,6 @@
   {:query [{:tag/tags (comp/get-query Tags)}]}
   (dom/div
    (dom/div "TagsWrapper " (pr-str tags))
-   (ui-tags tags)
-           (dom/button :.ui.button {} "Add tags")))
+   (ui-tags (->> tags (map (fn [{id :tag/id}] [:tag/id id]))))
+   (dom/button :.ui.button {} "Add tags")))
 (def ui-tagswrapper (comp/factory TagsWrapper))

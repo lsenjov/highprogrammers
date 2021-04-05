@@ -81,7 +81,9 @@
                           [id])
                     ffirst
                     ;; No tags? Make sure there's a placeholder
-                    (->> (merge {:tag/tags []}))))
+                    (->> (merge {:tag/tags []}))
+                    ;; Change from id to edges
+                    (update :tag/tags #(map (fn [{id :tag/id}] [:tag/id id]) %))))
 
 (defresolver crisis-tags-resolver
                 [env {id :crisis/id :as input}]
@@ -119,5 +121,4 @@
         (apply concat))})
 
 (def resolvers
-  [person-resolver list-resolver friends-resolver enemies-resolver
-   crisis-resolver crisis-tags-resolver crisis-all-resolver tag-resolver tags-all-resolver])
+  [crisis-all-resolver tags-all-resolver])

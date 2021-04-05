@@ -9,7 +9,7 @@
 
 (defsc Crisis
        [this {:crisis/keys [id text description] :as props}]
-       {:query [:crisis/id :crisis/text :crisis/description :tag/tags]
+       {:query [:crisis/id :crisis/text :crisis/description {:tag/tags [:tag/id]}]
         :ident (fn [] [:crisis/id id])}
        (println "this:" this)
        (println "stuff:" id text description)
@@ -65,7 +65,7 @@
           :.ui.warning.button
           {:onClick #(comp/transact! this [(hp.mutations/remove-crisis props)])}
           "Delete"))
-     (tag/ui-tagswrapper this))))
+     (tag/ui-tagswrapper props))))
 (def ui-crisis-form (comp/factory CrisisForm))
 
 
