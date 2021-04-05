@@ -10,7 +10,7 @@
 (defsc Crisis
        [this {:crisis/keys [id text description] :as props}]
        {:query [:crisis/id :crisis/text :crisis/description
-                {:tag/id->e (comp/get-query tag/Tag)}]
+                {:tag/tags (comp/get-query tag/Tag)} :tag/id->e]
         :ident :crisis/id}
        (dom/div (dom/div (or text "No text"))
                 (dom/div (or description "No description"))
@@ -48,7 +48,7 @@
                                         :crisis/description description})]))]
     (dom/div
       (dom/h3 "Crisis form")
-      (dom/div "debug:" (pr-str props))
+      (dom/pre "debug:" (pr-str props))
       (dom/div
         :.ui.form
         (field {:label "Text"
@@ -66,7 +66,7 @@
           :.ui.warning.button
           {:onClick #(comp/transact! this [(hp.mutations/remove-crisis props)])}
           "Delete"))
-      #_(tag/ui-tagswrapper props))))
+      (tag/ui-tagswrapper props))))
 (def ui-crisis-form (comp/factory CrisisForm))
 
 
@@ -75,10 +75,10 @@
   [this crisises]
   {:query [:crisis/id {:crisis/id (comp/get-query Crisis)}]}
   (println "CrisisList:" crisises)
-  (dom/div
-    ;(map ui-crisis-form crisises)
-    (map ui-crisis crisises)
-    (dom/div (dom/button
+  (dom/div (map ui-crisis-form crisises)
+           (map ui-crisis crisises)
+           (dom/div
+             (dom/button
                :.ui.button
                {:onClick #(comp/transact! this [(hp.mutations/add-crisis nil)])}
                "Add empty crisis"))))

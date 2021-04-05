@@ -72,9 +72,9 @@
        {:query [{:crisis/list (comp/get-query crisis/Crisis)}
                 {:tag/list (comp/get-query tag/Tag)}]
         :initial-state {}}
-       (dom/div (dom/h3 "Crisises")
+       (dom/div (dom/h1 "Crisises")
                 (when crisises (crisis/ui-crisis-list crisises))
-                (dom/h3 "Tags")
+                (dom/h1 "Tags")
                 (tag/ui-tags tags)
                 (dom/h3 "props:")
                 (dom/pre (with-out-str (cljs.pprint/pprint props)))

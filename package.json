@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.3",
     "clj-kondo": "^2020.11.7",
     "highlight.js": "9.18.1",
     "react": "^16.13.1",

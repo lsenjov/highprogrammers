@@ -10,8 +10,10 @@
        [this {:tag/keys [id name] :as props}]
        {:query [:tag/id :tag/name] :ident :tag/id}
        (dom/div (dom/pre "Tag:" (pr-str props))
-                (dom/div "id:" id)
-                (dom/div "name:" name)))
+                #_(dom/button :.ui.icon.button
+                              name
+                              #_(dom/create-element "i"
+                                                    {"class" "pause icon"}))))
 (def ui-tag (comp/factory Tag))
 
 (defsc Tags
