@@ -8,7 +8,7 @@
             [com.wsscode.pathom.connect.datomic :as pcd]
             [taoensso.timbre :as log]))
 
-(def resolvers [hp.resolvers/resolvers hp.mutations/mutations])
+(defn resolvers [] [(hp.resolvers/resolvers) (hp.mutations/mutations)])
 
 (def whitelist-attributes
   (->> hp.db/all-schema
@@ -25,7 +25,7 @@
                                   p/env-placeholder-reader]
                       ::pc/mutation-join-globals [:tempids]}
              ::p/mutate pc/mutate
-             ::p/plugins [(pc/connect-plugin {::pc/register resolvers})
+             ::p/plugins [(pc/connect-plugin {::pc/register (resolvers)})
                           (pcd/datomic-connect-plugin
                             (pcd/normalize-config
                               (assoc client-config

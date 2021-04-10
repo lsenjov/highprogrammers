@@ -57,4 +57,4 @@
                                      :where [[?tag :tag/id _]]})
                              (apply concat))})
 
-(def resolvers [crisis-all-resolver tags-all-resolver])
+(defn resolvers [] [crisis-all-resolver tags-all-resolver])

@@ -1,5 +1,7 @@
 (ns hp.mutations
   (:require [hp.resolvers :refer [db]]
+            [hp.mutations.crisis]
+            [hp.mutations.tag]
             [hp.db]
             [com.wsscode.pathom.connect :as pc]
             [taoensso.timbre :as log]))
@@ -41,45 +43,11 @@
                                conj
                                person-id))))))
 
-(pc/defmutation edit-crisis
-                [env args]
-                {::pc/sym `edit-crisis}
-                (tap> args)
-                (log/info "Editing crisis:" args)
-                (println "Editing crisis:" args)
-                (println (hp.db/add-docs [args]))
-                (println "Sent")
-                args)
-
-(pc/defmutation remove-crisis
-                [env {id :crisis/id :as crisis}]
-                {::pc/sym `remove-crisis}
-                (tap> crisis)
-                (println "Removing crisis:" crisis)
-                (hp.db/trans {:tx-data [[:db/retractEntity [:crisis/id id]]]})
-                [[:crisis/list] [:crisis/id id]])
-
-(pc/defmutation add-crisis
-                [env crisis]
-                {::pc/sym `add-crisis}
-                (tap> crisis)
-                (println (hp.db/add-docs [crisis]))
-                crisis)
-
-(pc/defmutation add-tag
-                [env {ident :ident id :tag/id}]
-                {::pc/sym `add-tag}
-                (println "Add-tag:" ident id)
-                (hp.db/trans {:tx-data [[:db/add ident :tag/tags
-                                         [:tag/id id]]]})
-                {})
-(pc/defmutation remove-tag
-                [env {ident :ident id :tag/id}]
-                {::pc/sym `remove-tag}
-                (println "Remove-tag:" ident id)
-                (hp.db/trans {:tx-data [[:db/retract ident :tag/tags
-                                         [:tag/id id]]]}))
 
 
-(def mutations
-  [delete-person add-person edit-crisis remove-crisis add-tag remove-tag])
+
+(defn mutations
+  []
+  [delete-person add-person hp.mutations.crisis/edit-crisis
+   hp.mutations.crisis/remove-crisis hp.mutations.tag/add-tag
+   hp.mutations.tag/remove-tag])
