@@ -29,34 +29,11 @@
      ::p/plugins
        [(pc/connect-plugin {::pc/register resolvers})
         (pcd/datomic-connect-plugin
-          (pcd/normalize-config (assoc client-config
-                                  ::pcd/conn hp.db/conn
-                                  ::pcd/whitelist whitelist-attributes
-                                  ::pcd/ident-attributes ident-attributes)))
-        {::pc/wrap-resolve
-           (fn [resolve]
-             (fn [env input]
-               (log/info "wrap-resolve:" input)
-               (let [res (resolve env input)
-                     edges (select-keys res [:tag/tags])
-                     _ (log/info "edges:" edges)
-                     converted
-                       (->> edges
-                            (filter (fn [[_ v]] (coll? v)))
-                            ;; Convert to an edge, given the id
-                            (map (fn [[k vs]]
-                                   (let [id-k (keyword (namespace k) "id")
-                                         new-k (keyword (namespace k) "id->e")]
-                                     [new-k
-                                      (mapv (fn [v]
-                                              (println "ks:" id-k new-k k v)
-                                              [id-k (get v id-k)])
-                                        vs)])))
-                            (into {}))
-                     _ (log/info "converted:" converted)
-                     output (merge res converted)
-                     _ (log/info "output:" output)]
-                 output)))} p/error-handler-plugin p/trace-plugin]}))
+         (pcd/normalize-config (assoc client-config
+                                      ::pcd/conn hp.db/conn
+                                      ::pcd/whitelist whitelist-attributes
+                                      ::pcd/ident-attributes ident-attributes)))
+        p/error-handler-plugin p/trace-plugin]}))
 
 (defn api-parser [query] (log/info "Process" query) (pathom-parser {} query))
 
@@ -64,11 +41,9 @@
   (api-parser [{:friends [:list/id {:list/people [:person/name]}]}
                {:enemies [:list/id {:list/people [:person/name]}]}])
   (api-parser [{:friends [:list/id {:list/people [:person/name]}]}])
-  (api-parser [{[:crisis/id "first"] [:crisis/id {:tag/tags [:tag/id]}
-                                      :tag/id->e]}])
+  (api-parser [{[:crisis/id "first"] [:crisis/id {:tag/tags [:tag/id]}]}])
   (api-parser [{[:crisis/id "second"] [:crisis/id :crisis/text
-                                       :crisis/description {:tag/tags [:tag/id]}
-                                       :tag/id->e]}])
+                                       :crisis/description {:tag/tags [:tag/id]}]}])
   (api-parser [{:crisis/list [:crisis/id :crisis/text :crisis/description
                               {:tag/tags [:tag/id :tag/name]} :tag/tags->e]}])
   (api-parser [{:crisis/list [:crisis/id {:tag/tags [:tag/id :tag/name]}]}])

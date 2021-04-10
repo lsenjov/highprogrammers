@@ -1,6 +1,7 @@
 (ns hp.mutations
   (:require [com.fulcrologic.fulcro.mutations :as m :refer [defmutation]]
-            [com.fulcrologic.fulcro.algorithms.merge :as merge])
+            [com.fulcrologic.fulcro.algorithms.merge :as merge]
+            [com.fulcrologic.fulcro.algorithms.data-targeting :as fdt])
   (:require-macros [hp.mutations.macros :refer [def-wssync-mutation]]))
 
 (def-wssync-mutation
@@ -66,12 +67,33 @@
 
 (defmutation
   add-tag
-  [{:tag/keys [id] :as tag}]
+  [{ident :ident id :tag/id :as tag}]
   (action [{:keys [state]}]
           (swap! state
                  (fn [db]
-                   (let []
-                     (-> db
-                         (assoc-in
-                          [:tag/id id]
-                          tag)))))))
+                   (update-in db
+                              (concat ident [:tag/tags])
+                              (fn [tags]
+                                (-> tags
+                                     ;; Remove the edge if it exists
+                                    (conj [:tag/id id])
+                                    ;; Ensure no duplicates
+                                    distinct)))))))
+
+(defmutation remove-tag
+  ;; Ident is the ident of the parent we're performing this on
+  ;; Id is the id of the tag
+  [{ident :ident id :tag/id}]
+  (action [{:keys [state]}]
+          (println "remove-tag" ident id)
+          (swap! state
+                 (fn [db]
+                   ;; Inside the object's :tag/tags collection
+                   (update-in db
+                              (concat ident [:tag/tags])
+                              (fn [tags]
+                                (->> tags
+                                     ;; Remove the edge if it exists
+                                     (remove #{[:tag/id id]})
+                                     ;; Make sure it stays a vector
+                                     (vec))))))))

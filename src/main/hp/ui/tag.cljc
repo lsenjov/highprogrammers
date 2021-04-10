@@ -7,26 +7,35 @@
             [com.fulcrologic.fulcro.algorithms.form-state :as fs]))
 
 (defsc Tag
-       [this {:tag/keys [id name] :as props}]
+       [this {:tag/keys [id name] :as props} {ident :ident}]
        {:query [:tag/id :tag/name] :ident :tag/id}
        (dom/div (dom/pre "Tag:" (pr-str props))
-                #_(dom/button :.ui.icon.button
+                (if ident
+                  (dom/button :.ui.icon.button
+                              {:onClick #(comp/transact!
+                                          this
+                                          [(hp.mutations/remove-tag {:ident ident :tag/id id})])}
                               name
-                              #_(dom/create-element "i"
-                                                    {"class" "pause icon"}))))
+                              (dom/create-element "i"
+                                                  #js {"className" "pause icon"}))
+                  (dom/button :.ui.icon.button
+                              name))))
 (def ui-tag (comp/factory Tag))
 
 (defsc Tags
-       [this tags]
+       [this tags {ident :ident}]
        {:query [{:tag/id (comp/get-query Tag)}]}
        (dom/div (dom/pre "Tags:" (pr-str tags)) (map ui-tag tags)))
 (def ui-tags (comp/factory Tags))
 
 (defsc TagsWrapper
        "Like tags, but for an object that has tags"
-       [this {tags :tag/id->e :as props}]
-       {:query [{:tag/id->e (comp/get-query Tags)}]}
+       [this {tags :tag/tags :as props} {ident :ident}]
+       {:query [{:tag/tags (comp/get-query Tags)}]}
        (dom/div (dom/pre "TagsWrapper " (pr-str tags))
-                (when-not (keyword? tags) (ui-tags tags))
+                (dom/div "Props:" (pr-str props))
+                (dom/pre "Ident:" (pr-str ident))
+                (when-not (keyword? tags)
+                  (map #(ui-tag (comp/computed % {:ident ident})) tags))
                 (dom/button :.ui.button {} "Add tags")))
 (def ui-tagswrapper (comp/factory TagsWrapper))
