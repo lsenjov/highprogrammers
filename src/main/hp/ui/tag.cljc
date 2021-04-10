@@ -30,12 +30,25 @@
 
 (defsc TagsWrapper
        "Like tags, but for an object that has tags"
-       [this {tags :tag/tags :as props} {ident :ident}]
-       {:query [{:tag/tags (comp/get-query Tags)}]}
+       [this {tags :tag/tags list :tag/list :as props} {ident :ident}]
+       {:query [{:tag/tags (comp/get-query Tags)}
+                {[:tag/list '_] (comp/get-query Tags)}]}
        (dom/div (dom/pre "TagsWrapper " (pr-str tags))
                 (dom/div "Props:" (pr-str props))
+                (dom/pre "List:" (pr-str list))
                 (dom/pre "Ident:" (pr-str ident))
                 (when-not (keyword? tags)
                   (map #(ui-tag (comp/computed % {:ident ident})) tags))
+                (dom/select :.ui.select
+                            (dom/option {:selected true} "Add Tag")
+                            (->> list
+                                 (map
+                                  (fn [{:tag/keys [id name]}]
+                                    (dom/option
+                                     {:onClick
+                                      (fn [_] (comp/transact!
+                                               this
+                                               [(hp.mutations/add-tag {:ident ident :tag/id id})]))}
+                                     name)))))
                 (dom/button :.ui.button {} "Add tags")))
 (def ui-tagswrapper (comp/factory TagsWrapper))

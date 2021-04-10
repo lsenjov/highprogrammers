@@ -10,7 +10,8 @@
 (defsc Crisis
        [this {:crisis/keys [id text description] :as props}]
        {:query [:crisis/id :crisis/text :crisis/description
-                {:tag/tags (comp/get-query tag/Tag)}]
+                {:tag/tags (comp/get-query tag/Tag)}
+                {[:tag/list '_] (comp/get-query tag/Tag)}]
         :ident :crisis/id}
        (dom/div (dom/div (or text "No text"))
                 (dom/div (or description "No description"))
@@ -33,7 +34,7 @@
   CrisisForm
   [this {:crisis/keys [id text description] :as props}]
   {:query [:crisis/id :crisis/text :crisis/description fs/form-config-join]
-   :ident [:crisis/id :crisis/id]
+   :ident :crisis/id
    :initial-state (fn [_]
                     (fs/add-form-config
                       CrisisForm
@@ -73,7 +74,8 @@
 (defsc
   CrisisList
   [this crisises]
-  {:query [:crisis/id {:crisis/id (comp/get-query Crisis)}]}
+  {:query [:crisis/id {:crisis/id (comp/get-query Crisis)}
+           {:crisis/id (comp/get-query tag/ui-tagswrapper)}]}
   (println "CrisisList:" crisises)
   (dom/div (map ui-crisis-form crisises)
            (map ui-crisis crisises)

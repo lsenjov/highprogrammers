@@ -78,7 +78,9 @@
                                      ;; Remove the edge if it exists
                                     (conj [:tag/id id])
                                     ;; Ensure no duplicates
-                                    distinct)))))))
+                                    distinct
+                                      ;; Make sure it stays a vector
+                                    vec)))))))
 
 (defmutation remove-tag
   ;; Ident is the ident of the parent we're performing this on
