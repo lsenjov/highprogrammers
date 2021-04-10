@@ -79,7 +79,8 @@
                                           ;; Ensure no duplicates
                                           distinct
                                           ;; Make sure it stays a vector
-                                          vec)))))))
+                                          vec))))))
+             (remote [env] true))
 
 (defmutation remove-tag
              ;; Ident is the ident of the parent we're performing this on
@@ -97,4 +98,5 @@
                                            ;; Remove the edge if it exists
                                            (remove #{[:tag/id id]})
                                            ;; Make sure it stays a vector
-                                           (vec))))))))
+                                           (vec)))))))
+             (remote [env] true))

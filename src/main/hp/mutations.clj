@@ -66,5 +66,20 @@
                 (println (hp.db/add-docs [crisis]))
                 crisis)
 
+(pc/defmutation add-tag
+                [env {ident :ident id :tag/id}]
+                {::pc/sym `add-tag}
+                (println "Add-tag:" ident id)
+                (hp.db/trans {:tx-data [[:db/add ident :tag/tags
+                                         [:tag/id id]]]})
+                {})
+(pc/defmutation remove-tag
+                [env {ident :ident id :tag/id}]
+                {::pc/sym `remove-tag}
+                (println "Remove-tag:" ident id)
+                (hp.db/trans {:tx-data [[:db/retract ident :tag/tags
+                                         [:tag/id id]]]}))
 
-(def mutations [delete-person add-person edit-crisis remove-crisis])
+
+(def mutations
+  [delete-person add-person edit-crisis remove-crisis add-tag remove-tag])

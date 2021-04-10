@@ -75,3 +75,6 @@
   (dato/transact conn {:tx-data data}))
 
 (defn trans [transaction] (dato/transact conn transaction))
+
+(comment (trans {:tx-data [[:db/add [:crisis/id "first"] :tag/tags
+                            [:tag/id "straight"]]]}))
