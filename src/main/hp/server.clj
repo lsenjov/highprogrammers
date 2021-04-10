@@ -46,14 +46,14 @@
     ;; Sends mutation to other clients
     ;; Currently broken
     #_(async/go (let [mutations (vec (filter #(-> %
-                                                first
-                                                namespace
-                                                (= "hp.mutations"))
-                                     query))]
-                (when (pos? (count mutations))
-                  (log/info "Pushing to " all-other-users)
-                  (doseq [uid all-other-users]
-                    (.push websockets uid :state-mutations query)))))
+                                                  first
+                                                  namespace
+                                                  (= "hp.mutations"))
+                                       query))]
+                  (when (pos? (count mutations))
+                    (log/info "Pushing to " all-other-users)
+                    (doseq [uid all-other-users]
+                      (.push websockets uid :state-mutations query)))))
     (api-parser query)))
 (defn query-parser
   "Used for a redirect when doing RAD"

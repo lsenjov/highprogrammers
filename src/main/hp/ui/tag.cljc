@@ -7,18 +7,16 @@
             [com.fulcrologic.fulcro.algorithms.form-state :as fs]))
 
 (defsc Tag
-  [this {:tag/keys [id name] :as props} {ident :ident}]
-  {:query [:tag/id :tag/name] :ident :tag/id}
-  (if ident
-    (dom/button :.ui.icon.button
-                {:onClick #(comp/transact!
-                            this
-                            [(hp.mutations/remove-tag {:ident ident :tag/id id})])}
-                name
-                (dom/create-element "i"
-                                    #js {"className" "pause icon"}))
-    (dom/button :.ui.icon.button
-                name)))
+       [this {:tag/keys [id name] :as props} {ident :ident}]
+       {:query [:tag/id :tag/name] :ident :tag/id}
+       (if ident
+         (dom/button :.ui.icon.button
+                     {:onClick #(comp/transact! this
+                                                [(hp.mutations/remove-tag
+                                                   {:ident ident :tag/id id})])}
+                     name
+                     (dom/create-element "i" #js {"className" "pause icon"}))
+         (dom/button :.ui.icon.button name)))
 (def ui-tag (comp/factory Tag))
 
 (defsc Tags
@@ -32,18 +30,18 @@
        [this {tags :tag/tags list :tag/list :as props} {ident :ident}]
        {:query [{:tag/tags (comp/get-query Tags)}
                 {[:tag/list '_] (comp/get-query Tags)}]}
-       (dom/div
-        (when-not (keyword? tags)
-          (map #(ui-tag (comp/computed % {:ident ident})) tags))
-        (dom/select :.ui.select
-                    (dom/option {:selected true} "Add Tag")
-                    (->> list
-                         (map
-                          (fn [{:tag/keys [id name]}]
-                            (dom/option
-                             {:onClick
-                              (fn [_] (comp/transact!
-                                       this
-                                       [(hp.mutations/add-tag {:ident ident :tag/id id})]))}
-                             name)))))))
+       (dom/div (when-not (keyword? tags)
+                  (map #(ui-tag (comp/computed % {:ident ident})) tags))
+                (dom/select
+                  :.ui.select
+                  (dom/option {:selected true} "Add Tag")
+                  (->> list
+                       (map (fn [{:tag/keys [id name]}]
+                              (dom/option
+                                {:onClick (fn [_]
+                                            (comp/transact!
+                                              this
+                                              [(hp.mutations/add-tag
+                                                 {:ident ident :tag/id id})]))}
+                                name)))))))
 (def ui-tagswrapper (comp/factory TagsWrapper))

@@ -20,43 +20,41 @@
   [resolver-name [env input] pc-map & body]
   (let [inputg (if (symbol? input) input (gensym))
         outputg (gensym)]
-    `(pc/defresolver
-       ~resolver-name
-       [~env ~(cond (map? input) (assoc input :as inputg)
-                    (symbol? input) inputg
-                    (vector? input) (conj input :as inputg)
-                    :else input)]
-       ~pc-map
-      (let [~outputg ~@body]
-        (log/info ~(str resolver-name ": input") ~inputg)
-        (log/info ~(str resolver-name ": output: ") ~outputg)
-        ~outputg))))
+    `(pc/defresolver ~resolver-name
+                     [~env
+                      ~(cond (map? input) (assoc input :as inputg)
+                             (symbol? input) inputg
+                             (vector? input) (conj input :as inputg)
+                             :else input)]
+                     ~pc-map
+                     (let [~outputg ~@body]
+                       (log/info ~(str resolver-name ": input") ~inputg)
+                       (log/info ~(str resolver-name ": output: ") ~outputg)
+                       ~outputg))))
 
 (comment
   (clojure.pprint/pprint
-   (macroexpand-1
-    '(defresolver crisis-all-resolver
-       [env input]
-       {::pc/output [{:crisis/list [:crisis/id]}]}
-       {:crisis/list (->> '{:find [(pull ?crisis [:crisis/id])]
-                            :where [[?crisis :crisis/id _]]}
-                          db/q
-                          (apply concat))}))))
+    (macroexpand-1
+      '(defresolver crisis-all-resolver
+                    [env input]
+                    {::pc/output [{:crisis/list [:crisis/id]}]}
+                    {:crisis/list (->> '{:find [(pull ?crisis [:crisis/id])]
+                                         :where [[?crisis :crisis/id _]]}
+                                       db/q
+                                       (apply concat))}))))
 
 (defresolver crisis-all-resolver
-                [env input]
-                {::pc/output [{:crisis/list [:crisis/id]}]}
-                {:crisis/list (->> '{:find [(pull ?crisis [:crisis/id])]
-                                     :where [[?crisis :crisis/id _]]}
-                                   db/q
-                                   (apply concat))})
+             [env input]
+             {::pc/output [{:crisis/list [:crisis/id]}]}
+             {:crisis/list (->> '{:find [(pull ?crisis [:crisis/id])]
+                                  :where [[?crisis :crisis/id _]]}
+                                db/q
+                                (apply concat))})
 (defresolver tags-all-resolver
-  [env input]
-  {::pc/output [{:tag/list [:tag/id]}]}
-  {:tag/list
-   (->> (db/q '{:find [(pull ?tag [:tag/id])]
-                :where [[?tag :tag/id _]]})
-        (apply concat))})
+             [env input]
+             {::pc/output [{:tag/list [:tag/id]}]}
+             {:tag/list (->> (db/q '{:find [(pull ?tag [:tag/id])]
+                                     :where [[?tag :tag/id _]]})
+                             (apply concat))})
 
-(def resolvers
-  [crisis-all-resolver  tags-all-resolver ])
+(def resolvers [crisis-all-resolver tags-all-resolver])

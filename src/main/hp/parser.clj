@@ -21,19 +21,18 @@
        set))
 
 (def pathom-parser
-  (p/parser
-    {::p/env {::p/reader [p/map-reader pc/reader3 pc/open-ident-reader
-                          p/env-placeholder-reader]
-              ::pc/mutation-join-globals [:tempids]}
-     ::p/mutate pc/mutate
-     ::p/plugins
-       [(pc/connect-plugin {::pc/register resolvers})
-        (pcd/datomic-connect-plugin
-         (pcd/normalize-config (assoc client-config
-                                      ::pcd/conn hp.db/conn
-                                      ::pcd/whitelist whitelist-attributes
-                                      ::pcd/ident-attributes ident-attributes)))
-        p/error-handler-plugin p/trace-plugin]}))
+  (p/parser {::p/env {::p/reader [p/map-reader pc/reader3 pc/open-ident-reader
+                                  p/env-placeholder-reader]
+                      ::pc/mutation-join-globals [:tempids]}
+             ::p/mutate pc/mutate
+             ::p/plugins [(pc/connect-plugin {::pc/register resolvers})
+                          (pcd/datomic-connect-plugin
+                            (pcd/normalize-config
+                              (assoc client-config
+                                ::pcd/conn hp.db/conn
+                                ::pcd/whitelist whitelist-attributes
+                                ::pcd/ident-attributes ident-attributes)))
+                          p/error-handler-plugin p/trace-plugin]}))
 
 (defn api-parser [query] (log/info "Process" query) (pathom-parser {} query))
 
@@ -43,7 +42,8 @@
   (api-parser [{:friends [:list/id {:list/people [:person/name]}]}])
   (api-parser [{[:crisis/id "first"] [:crisis/id {:tag/tags [:tag/id]}]}])
   (api-parser [{[:crisis/id "second"] [:crisis/id :crisis/text
-                                       :crisis/description {:tag/tags [:tag/id]}]}])
+                                       :crisis/description
+                                       {:tag/tags [:tag/id]}]}])
   (api-parser [{:crisis/list [:crisis/id :crisis/text :crisis/description
                               {:tag/tags [:tag/id :tag/name]} :tag/tags->e]}])
   (api-parser [{:crisis/list [:crisis/id {:tag/tags [:tag/id :tag/name]}]}])

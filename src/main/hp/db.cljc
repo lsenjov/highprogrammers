@@ -38,19 +38,13 @@
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/many
     :db/doc "An object's attached tags"}])
-(def all-schema
-  (concat
-   crisis-schema
-   tag-schema))
+(def all-schema (concat crisis-schema tag-schema))
 (dato/transact conn {:tx-data all-schema})
 (dato/transact
   conn
   {:tx-data
-     [{:db/id "tempclassic"
-       :tag/id "classic"
-       :tag/name "Classic"}
-      {:tag/id "straight"
-       :tag/name "Straight"}
+     [{:db/id "tempclassic" :tag/id "classic" :tag/name "Classic"}
+      {:tag/id "straight" :tag/name "Straight"}
       {:crisis/id "first"
        :crisis/text "A test crisis"
        :crisis/description "A much longer description here"
@@ -58,7 +52,7 @@
       {:crisis/id "second"
        :crisis/text "A second test crisis"
        :crisis/description
-       "A much longer description here\npossibly going over multiple lines"}]})
+         "A much longer description here\npossibly going over multiple lines"}]})
 (defn q
   ([query args] (dato/q {:query query :args (concat [(dato/db conn)] args)}))
   ([query] (q query [])))
@@ -67,16 +61,13 @@
   (q '{:find [(pull ?crisis [* {:tag/tags [*]}])]
        ;:in [$ ?id]
        :where [[?crisis :crisis/id _]]})
-  (dato/pull
-   (dato/db conn)
-   [:crisis/text {:tag/tags [:tag/id]}]
-   [:crisis/id "first"]
-   )
+  (dato/pull (dato/db conn)
+             [:crisis/text {:tag/tags [:tag/id]}]
+             [:crisis/id "first"])
   (q '{:find [(pull ?crisis [:crisis/id {:tag/tags [:tag/id]}])]
        ;:in [$ ?id]
        :where [[?crisis :crisis/id _]]})
-  (q '{:find [(pull ?tag [:tag/id :tag/name])]
-       :where [[?tag :tag/id _]]}))
+  (q '{:find [(pull ?tag [:tag/id :tag/name])] :where [[?tag :tag/id _]]}))
 
 (defn add-docs
   "Simple way to add basic documents"
