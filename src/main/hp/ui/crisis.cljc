@@ -15,7 +15,6 @@
         :ident :crisis/id}
        (dom/div (dom/div (or text "No text"))
                 (dom/div (or description "No description"))
-                (dom/h4 "tagswrapper")
                 (tag/ui-tagswrapper (merge props {:ident (comp/get-ident this)}))))
 (def ui-crisis (comp/factory Crisis))
 
@@ -49,7 +48,6 @@
                                         :crisis/description description})]))]
     (dom/div
       (dom/h3 "Crisis form")
-      (dom/pre "debug:" (pr-str props))
       (dom/div
         :.ui.form
         (field {:label "Text"
