@@ -11,7 +11,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",
     "clj-kondo": "^2020.11.7",
-    "highlight.js": "9.18.1",
+    "highlight.js": "10.4.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-grid-layout": "0.16.6",
