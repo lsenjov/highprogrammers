@@ -4,5 +4,6 @@
  :lint-as {clojure.core.cache/defcache clojure.core/defprotocol
            com.fulcrologic.fulcro.components/defsc clojure.core/defn
            com.fulcrologic.fulcro.mutations/defmutation clojure.core/defn
+           com.fulcrologic.fulcro.routing.dynamic-routing/defrouter clojure.core/defn
            hp.mutations.macros/def-wssync-mutation clojure.core/defn
            hp.resolvers/defresolver clojure.core/defn}}
