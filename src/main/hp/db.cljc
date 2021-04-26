@@ -9,6 +9,11 @@
 (dato/create-database client {:db-name db-name})
 (def conn (dato/connect client {:db-name db-name}))
 
+(def tag-tags-schema
+  [{:db/ident :tag/tags
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/doc "An object's attached tags"}])
 (def crisis-schema
   [{:db/ident :crisis/id
     :db/valueType :db.type/string
@@ -38,7 +43,22 @@
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/many
     :db/doc "An object's attached tags"}])
-(def all-schema (concat crisis-schema tag-schema))
+(def department-schema
+  [{:db/ident :department/id
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/unique :db.unique/identity
+    :db/doc "A department id"}
+   {:db/ident :department/full-name
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/doc "Full name of a department"}
+   {:db/ident :department/acronym
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/doc "A few letters representing the department"}])
+(def all-schema
+  (concat tag-tags-schema crisis-schema tag-schema department-schema))
 (dato/transact conn {:tx-data all-schema})
 (dato/transact
   conn

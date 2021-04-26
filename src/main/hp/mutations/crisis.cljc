@@ -34,12 +34,12 @@
                                   :crisis/text ""
                                   :crisis/description ""})
                        (update-in [:crisis/list] conj [:crisis/id uuid])))))))
-   :clj (pc/defmutation add-crisis
-                        [env crisis]
-                        {::pc/sym `add-crisis}
-                        (log/debug "add-crisis:" crisis)
-                        (hp.db/add-docs [crisis])
-                        crisis))
+   :clj (defmutation add-crisis
+                     [env crisis]
+                     {::pc/sym `add-crisis}
+                     (log/debug "add-crisis:" crisis)
+                     (hp.db/add-docs [crisis])
+                     crisis))
 
 #?(:cljs (defmutation remove-crisis
                       [{:crisis/keys [id]}]

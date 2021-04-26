@@ -4,15 +4,21 @@
             [hp.ui.crisis :as ui.crisis]
             [hp.ui.tag :as ui.tag]
             [com.fulcrologic.fulcro.application :as app]
-            [com.fulcrologic.fulcro.data-fetch :as df]))
+            [com.fulcrologic.fulcro.data-fetch :as df]
+            [com.fulcrologic.fulcro.routing.dynamic-routing :as dr]))
 
 (defn ^:export init
   "Shadow-cljs sets this up to be our entry-point function. See shadow-cljs.edn `:init-fn` in the modules of the main build."
   []
+  (println "Initialising state")
+  (app/set-root! app ui/Root {:initialize-state? true})
+  (println "Initializing router")
+  (dr/initialize! app)
+  (println "Mounting app")
   (app/mount! app ui/Root "app")
   ;; (df/load! app :friends ui/PersonList)
   ;; (df/load! app :enemies ui/PersonList)
-  (df/load! app :crisis/list ui.crisis/Crisis)
+  #_(df/load! app :crisis/list ui.crisis/Crisis)
   (df/load! app :tag/list ui.tag/Tag)
   (js/console.log "Loaded"))
 
@@ -22,3 +28,8 @@
   ;; re-mounting will cause forced UI refresh, update internals, etc.
   (app/mount! app ui/Root "app")
   (js/console.log "Hot reload"))
+
+(comment (dr/change-route app [])
+         (dr/change-route app ["crisis"])
+         (dr/change-route app ["crisis" "first"])
+         (dr/change-route app ["crisis" "second"]))

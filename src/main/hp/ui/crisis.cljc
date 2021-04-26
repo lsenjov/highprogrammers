@@ -5,7 +5,10 @@
             [com.fulcrologic.fulcro.mutations :as m]
             #?(:clj [com.fulcrologic.fulcro.dom-server :as dom]
                :cljs [com.fulcrologic.fulcro.dom :as dom])
-            [com.fulcrologic.fulcro.algorithms.form-state :as fs]))
+            [com.fulcrologic.fulcro.algorithms.form-state :as fs]
+            [taoensso.timbre :as log]
+            [com.fulcrologic.fulcro.data-fetch :as df]
+            [com.fulcrologic.fulcro.routing.dynamic-routing :as dr]))
 
 (defsc
   Crisis
@@ -13,7 +16,19 @@
   {:query [:crisis/id :crisis/text :crisis/description
            {:tag/tags (comp/get-query tag/Tag)}
            {[:tag/list '_] (comp/get-query tag/Tag)}]
-   :ident :crisis/id}
+   :ident :crisis/id
+   :route-segment ["crisis" :crisis/id]
+   :route-cancelled (fn [{:crisis/keys [id]}]
+                      (log/info "Routing cancelled to user " id))
+   :will-enter (fn [app {:crisis/keys [id] :as route-params}]
+                 (log/info "Will enter user with route params " route-params)
+                 (dr/route-deferred [:crisis/id id]
+                                    #(df/load app
+                                              [:crisis/id id]
+                                              Crisis
+                                              {:post-mutation `dr/target-ready
+                                               :post-mutation-params
+                                                 {:target [:crisis/id id]}})))}
   (dom/div (dom/div (or text "No text"))
            (dom/div (or description "No description"))
            (tag/ui-tagswrapper (merge props {:ident (comp/get-ident this)}))))
@@ -38,12 +53,24 @@
   CrisisForm
   [this {:crisis/keys [id text description] :as props}]
   {:query [:crisis/id :crisis/text :crisis/description fs/form-config-join]
-   :ident :crisis/id
+   :ident [:crisis/id :crisis/id]
    :initial-state (fn [_]
                     (fs/add-form-config
                       CrisisForm
                       {:crisis/id "" :crisis/text "" :crisis/description ""}))
-   :form-fields #{:crisis/text :crisis/description}}
+   :form-fields #{:crisis/text :crisis/description}
+   :route-segment ["crisis" :crisis/id]
+   :route-cancelled (fn [{:crisis/keys [id]}]
+                      (log/info "Routing cancelled to user " id))
+   :will-enter (fn [app {:crisis/keys [id] :as route-params}]
+                 (log/info "Will enter user with route params " route-params)
+                 (dr/route-deferred [:crisis/id id]
+                                    #(df/load app
+                                              [:crisis/id id]
+                                              Crisis
+                                              {:post-mutation `dr/target-ready
+                                               :post-mutation-params
+                                                 {:target [:crisis/id id]}})))}
   (let [apply-fn! (fn [evt]
                     (println "lololol")
                     (comp/transact! this
@@ -53,6 +80,7 @@
                                         :crisis/description description})]))]
     (dom/div
       (dom/h3 "Crisis form")
+      (dom/div (pr-str props))
       (dom/div
         :.ui.form
         (field {:label "Text"
@@ -80,7 +108,8 @@
   CrisisList
   [this crisises]
   {:query [:crisis/id {:crisis/id (comp/get-query Crisis)}
-           {:crisis/id (comp/get-query tag/ui-tagswrapper)}]}
+           {:crisis/id (comp/get-query tag/ui-tagswrapper)}]
+   :router-targets ["crisis"]}
   (println "CrisisList:" crisises)
   (dom/div (map ui-crisis-form crisises)
            (map ui-crisis crisises)

@@ -2,6 +2,8 @@
   (:require [hp.mutations :as api]
             [hp.ui.crisis :as crisis]
             [hp.ui.tag :as tag]
+            [com.fulcrologic.fulcro.routing.dynamic-routing :as dr :refer
+             [defrouter]]
             [com.fulcrologic.fulcro.components :as comp :refer [defsc]]
             #?(:clj [com.fulcrologic.fulcro.dom-server :as dom]
                :cljs [com.fulcrologic.fulcro.dom :as dom])))
@@ -67,16 +69,24 @@
                                hp.application/app))))))
 (def ui-debug (comp/factory Debug))
 
-(defsc Root
-       [this {crisises :crisis/list tags :tag/list :as props}]
-       {:query [{:crisis/list (comp/get-query crisis/Crisis)}
-                {:tag/list (comp/get-query tag/Tag)}]
-        :initial-state {}}
-       (dom/div (dom/h1 "Crisises")
-                (when crisises (crisis/ui-crisis-list crisises))
-                (dom/h1 "Tags")
-                (tag/ui-tags tags)
-                (dom/h3 "props:")
-                (dom/pre (with-out-str (cljs.pprint/pprint props)))
-                (dom/h3 "debug:")
-                (dom/pre (ui-debug))))
+(defrouter RootRouter
+           [this props]
+           {:router-targets [crisis/Crisis crisis/CrisisList]})
+(def ui-rootrouter (comp/factory RootRouter))
+
+(defsc
+  Root
+  [this {crisises :crisis/list tags :tag/list router :root/router :as props}]
+  {:query [{:crisis/list (comp/get-query crisis/Crisis)}
+           {:tag/list (comp/get-query tag/Tag)}
+           {:root/router (comp/get-query RootRouter)}]
+   :initial-state {:root/router {}}}
+  (dom/div #_#_#_#_(dom/h1 "Crisises")
+                 (when crisises (crisis/ui-crisis-list crisises))
+               (dom/h1 "Tags")
+             (tag/ui-tags tags)
+           (ui-rootrouter router)
+           (dom/h3 "props:")
+           (dom/pre (with-out-str (cljs.pprint/pprint props)))
+           (dom/h3 "debug:")
+           (dom/pre (ui-debug))))
