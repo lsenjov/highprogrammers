@@ -28,8 +28,8 @@
                              :else input)]
                      ~pc-map
                      (let [~outputg ~@body]
-                       (log/info ~(str resolver-name ": input") ~inputg)
-                       (log/info ~(str resolver-name ": output: ") ~outputg)
+                       (log/debug ~(str resolver-name ": input") ~inputg)
+                       (log/debug ~(str resolver-name ": output: ") ~outputg)
                        ~outputg))))
 
 (comment
@@ -43,13 +43,16 @@
                                        db/q
                                        (apply concat))}))))
 
-(defresolver crisis-all-resolver
-             [env input]
-             {::pc/output [{:crisis/list [:crisis/id]}]}
-             {:crisis/list (->> '{:find [(pull ?crisis [:crisis/id])]
-                                  :where [[?crisis :crisis/id _]]}
-                                db/q
-                                (apply concat))})
+(defresolver
+  crisis-all-resolver
+  [env input]
+  {::pc/output [{:crisis/list [:crisis/list :crisis/id]}]}
+  {:crisis/list (list {:crisis/list "all"
+                       :crisis/ids (->> '{:find [(pull ?crisis [:crisis/id])]
+                                          :where [[?crisis :crisis/id _]]}
+                                        db/q
+                                        (apply concat)
+                                        doall)})})
 (defresolver tags-all-resolver
              [env input]
              {::pc/output [{:tag/list [:tag/id]}]}

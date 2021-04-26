@@ -12,7 +12,7 @@
 
 (defsc
   Crisis
-  [this {:crisis/keys [id text description] :as props}]
+  [this {:crisis/keys [id text description] :as props} {editable? :editable?}]
   {:query [:crisis/id :crisis/text :crisis/description
            {:tag/tags (comp/get-query tag/Tag)}
            {[:tag/list '_] (comp/get-query tag/Tag)}]
@@ -31,7 +31,10 @@
                                                  {:target [:crisis/id id]}})))}
   (dom/div (dom/div (or text "No text"))
            (dom/div (or description "No description"))
-           (tag/ui-tagswrapper (merge props {:ident (comp/get-ident this)}))))
+           (tag/ui-tagswrapper props)
+           (when editable?
+             (dom/button {:onClick #(dr/change-route! this ["crisis" id])}
+                         "Edit"))))
 (def ui-crisis (comp/factory Crisis))
 
 (defn field
@@ -53,7 +56,7 @@
   CrisisForm
   [this {:crisis/keys [id text description] :as props}]
   {:query [:crisis/id :crisis/text :crisis/description fs/form-config-join]
-   :ident [:crisis/id :crisis/id]
+   :ident :crisis/id
    :initial-state (fn [_]
                     (fs/add-form-config
                       CrisisForm
@@ -100,21 +103,34 @@
                                                [(muts/remove-crisis props)])}
                     "Delete"))
       (tag/ui-tagswrapper (comp/computed props
+                                         ;; Add ident so it knows its editable
                                          {:ident (comp/get-ident this)})))))
 (def ui-crisis-form (comp/factory CrisisForm))
 
 
-(defsc
-  CrisisList
-  [this crisises]
-  {:query [:crisis/id {:crisis/id (comp/get-query Crisis)}
-           {:crisis/id (comp/get-query tag/ui-tagswrapper)}]
-   :router-targets ["crisis"]}
-  (println "CrisisList:" crisises)
-  (dom/div (map ui-crisis-form crisises)
-           (map ui-crisis crisises)
+(defsc CrisisList
+       [this {list :crisis/list crisises :crisis/ids :as props}]
+       {:query [:crisis/list {:crisis/ids (comp/get-query Crisis)}]
+        :route-segment ["crisislist" :crisis/list]
+        :ident :crisis/list
+        :will-enter
+          (fn [app {:crisis/keys [list] :as route-params}]
+            (log/info "Will enter user with route params " route-params)
+            (dr/route-deferred [:crisis/list list]
+                               #(df/load! app
+                                          :crisis/list
+                                          CrisisList
+                                          {:post-mutation `dr/target-ready
+                                           :post-mutation-params
+                                             {:target [:crisis/list list]}})))}
+       (dom/div
+         (dom/h3 "Crisises: " list)
+         (dom/pre "CrisisList:" (pr-str props))
+         (dom/div
+           (map #(ui-crisis (comp/computed % {:editable? true})) crisises)
            (dom/div (dom/button
                       :.ui.button
                       {:onClick #(comp/transact! this [(muts/add-crisis nil)])}
-                      "Add empty crisis"))))
+                      "Add empty crisis")))))
 (def ui-crisis-list (comp/factory CrisisList))
+(comment (df/load! hp.application/app :crisis/list CrisisList))

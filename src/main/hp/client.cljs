@@ -14,12 +14,14 @@
   (app/set-root! app ui/Root {:initialize-state? true})
   (println "Initializing router")
   (dr/initialize! app)
+  (dr/change-route! app ["crisislist" "all"])
   (println "Mounting app")
   (app/mount! app ui/Root "app")
   ;; (df/load! app :friends ui/PersonList)
   ;; (df/load! app :enemies ui/PersonList)
-  #_(df/load! app :crisis/list ui.crisis/Crisis)
+  #_(df/load! app :crisis/list ui.crisis/CrisisList)
   (df/load! app :tag/list ui.tag/Tag)
+  #_(dr/change-route app ["crisislist" "all"])
   (js/console.log "Loaded"))
 
 (defn ^:export refresh
@@ -30,6 +32,8 @@
   (js/console.log "Hot reload"))
 
 (comment (dr/change-route app [])
-         (dr/change-route app ["crisis"])
+         (dr/change-route app ["crisislist" "all"])
          (dr/change-route app ["crisis" "first"])
-         (dr/change-route app ["crisis" "second"]))
+         (dr/change-route app ["crisis" "second"])
+         (cljs.pprint/pprint (com.fulcrologic.fulcro.application/current-state
+                               app)))

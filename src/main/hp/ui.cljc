@@ -70,8 +70,12 @@
 (def ui-debug (comp/factory Debug))
 
 (defrouter RootRouter
-           [this props]
-           {:router-targets [crisis/Crisis crisis/CrisisList]})
+           [this {:keys [current-state] :as props}]
+           {:router-targets [crisis/CrisisList crisis/CrisisForm]}
+           (case current-state
+             :pending (dom/div "Loading...")
+             :failed (dom/div "Failed!")
+             (dom/div "No route yet")))
 (def ui-rootrouter (comp/factory RootRouter))
 
 (defsc
@@ -85,6 +89,7 @@
                  (when crisises (crisis/ui-crisis-list crisises))
                (dom/h1 "Tags")
              (tag/ui-tags tags)
+           (dom/h3 "Governance")
            (ui-rootrouter router)
            (dom/h3 "props:")
            (dom/pre (with-out-str (cljs.pprint/pprint props)))

@@ -23,17 +23,18 @@
 #?(:cljs (defmutation
            add-crisis
            [_]
-           (action
-             [{:keys [state]}]
-             (swap! state
-               (fn [db]
-                 (let [uuid (str (random-uuid))]
-                   (-> db
-                       (assoc-in [:crisis/id uuid]
-                                 {:crisis/id uuid
-                                  :crisis/text ""
-                                  :crisis/description ""})
-                       (update-in [:crisis/list] conj [:crisis/id uuid])))))))
+           (action [{:keys [state]}]
+                   (swap! state (fn [db]
+                                  (let [uuid (str (random-uuid))]
+                                    (-> db
+                                        (assoc-in [:crisis/id uuid]
+                                                  {:crisis/id uuid
+                                                   :crisis/text ""
+                                                   :crisis/description ""})
+                                        (update-in [:crisis/list "all"
+                                                    :crisis/ids]
+                                                   conj
+                                                   [:crisis/id uuid])))))))
    :clj (defmutation add-crisis
                      [env crisis]
                      {::pc/sym `add-crisis}

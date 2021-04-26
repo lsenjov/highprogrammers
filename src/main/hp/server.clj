@@ -16,14 +16,6 @@
   (fn [req]
     {:status 404 :headers {"Content-Type" "text/plain"} :body "Not Found"}))
 
-(def middleware
-  (-> not-found-handler
-      (server/wrap-api {:uri "/api" :parser api-parser})
-      (server/wrap-transit-params)
-      (server/wrap-transit-response)
-      (wrap-resource "public")
-      wrap-content-type))
-
 (defonce ^{:doc "We store the server stop in here"} stop-fn (atom nil))
 (defonce
   ^{:doc

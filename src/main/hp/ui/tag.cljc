@@ -31,19 +31,20 @@
        [this {tags :tag/tags list :tag/list :as props} {ident :ident}]
        {:query [{:tag/tags (comp/get-query Tags)}
                 {[:tag/list '_] (comp/get-query Tags)}]}
-       (dom/div
-         (when-not (keyword? tags)
-           (map #(ui-tag (comp/computed % {:ident ident})) tags))
-         (dom/select :.ui.select
-                     (dom/option {:selected true} "Add Tag")
-                     (->> list
-                          (remove (set tags))
-                          (map (fn [{:tag/keys [id name]}]
-                                 (dom/option {:onClick (fn [_]
-                                                         (comp/transact!
-                                                           this
-                                                           [(muts/add-tag
-                                                              {:ident ident
-                                                               :tag/id id})]))}
-                                             name)))))))
+       (dom/div (when-not (keyword? tags)
+                  (map #(ui-tag (comp/computed % {:ident ident})) tags))
+                (when ident
+                  (dom/select
+                    :.ui.select
+                    (dom/option {:selected true} "Add Tag")
+                    (->> list
+                         (remove (set tags))
+                         (map (fn [{:tag/keys [id name]}]
+                                (dom/option
+                                  {:onClick (fn [_]
+                                              (comp/transact!
+                                                this
+                                                [(muts/add-tag {:ident ident
+                                                                :tag/id id})]))}
+                                  name))))))))
 (def ui-tagswrapper (comp/factory TagsWrapper))
